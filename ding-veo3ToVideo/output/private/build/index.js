@@ -1,6 +1,5 @@
 "use strict";
 
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -8,6 +7,7 @@ exports["default"] = void 0;
 var _dingtalkDocsCoolApp = require("dingtalk-docs-cool-app");
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
@@ -127,7 +127,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
       title: '请上传参考图片文件'
     },
     props: {
-      mode: 'single',
+      mode: 'multiple',
       supportTypes: [_dingtalkDocsCoolApp.FieldType.Attachment]
     },
     validator: {
@@ -159,10 +159,37 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var videoMethod, videoPrompt, refImage, size, debugLog, _taskResp$error, createVideoUrl, requestBody, requestOptions, createTask, taskResp, videoDetailUrl, detailRequestOptions, pollingInterval, maxPollingTime, startTime, videoDetailResp, pollingComplete, getTaskDetail, videoUrl, _t;
+      var videoMethod, videoPrompt, refImage, size, debugLog, extractTmpUrl, _taskResp$error, createVideoUrl, requestBody, tmpUrl, requestOptions, createTask, taskResp, videoDetailUrl, detailRequestOptions, pollingInterval, maxPollingTime, startTime, videoDetailResp, pollingComplete, getTaskDetail, videoUrl, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
+            extractTmpUrl = function _extractTmpUrl(data) {
+              // 排除 null/undefined 或空值场景
+              if (data === null || typeof data === 'undefined') {
+                return null;
+              }
+
+              // 如果是对象（包括数组、普通对象）
+              if (_typeof(data) === 'object') {
+                // 先检查当前对象是否有 tmp_url 属性且为有效字符串
+                if ('tmp_url' in data && typeof data.tmp_url === 'string' && data.tmp_url.trim()) {
+                  return data.tmp_url.trim();
+                }
+
+                // 遍历对象/数组的每一个元素（跳过 null 元素）
+                for (var key in data) {
+                  if (data.hasOwnProperty(key) && data[key] !== null) {
+                    var result = extractTmpUrl(data[key]);
+                    if (result !== null) {
+                      return result;
+                    }
+                  }
+                }
+              }
+
+              // 非对象/没找到有效 tmp_url，返回 null
+              return null;
+            };
             debugLog = function _debugLog(arg) {
               // @ts-ignore
               console.log(JSON.stringify(_objectSpread({
@@ -179,13 +206,10 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
               seconds: "8",
               size: size
             }; // 如果refImage存在且有元素的tmp_url，则将所有tmp_url组成数组赋值给input_reference
-            if (refImage && refImage.length > 0) {
-              requestBody.input_reference = refImage.filter(function (item) {
-                return item && item.tmp_url;
-              }) // 过滤出有tmp_url的元素
-              .map(function (item) {
-                return item.tmp_url.trim();
-              }); // 去除可能的空格并提取tmp_url
+            tmpUrl = extractTmpUrl(refImage);
+            if (tmpUrl) {
+              // 仅当找到有效 tmp_url 时赋值
+              requestBody.input_reference = [tmpUrl];
             }
             requestOptions = {
               method: 'POST',

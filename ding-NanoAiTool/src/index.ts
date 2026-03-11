@@ -189,6 +189,43 @@ fieldDecoratorKit.setDecorator({
         ...arg
       }))
     }
+
+    function extractAllTmpUrls(data) {
+    // 存储所有提取到的 tmp_url
+    const tmpUrlList = [];
+
+    // 递归遍历函数
+    function traverse(currentData) {
+        // 跳过 null/undefined
+        if (currentData === null || typeof currentData === 'undefined') {
+            return;
+        }
+
+        // 如果是对象（数组/普通对象）
+        if (typeof currentData === 'object') {
+            // 检查当前对象是否有有效 tmp_url
+            if (
+                'tmp_url' in currentData && 
+                typeof currentData.tmp_url === 'string' && 
+                currentData.tmp_url.trim()
+            ) {
+                tmpUrlList.push(currentData.tmp_url.trim());
+            }
+
+            // 遍历所有子元素（跳过原型链属性）
+            for (const key in currentData) {
+                if (currentData.hasOwnProperty(key)) {
+                    traverse(currentData[key]);
+                }
+            }
+        }
+    }
+
+    // 开始遍历传入的数据
+    traverse(data);
+    // 返回去重后的数组（可选：如果需要去重则加，不需要则直接返回 tmpUrlList）
+    return [...new Set(tmpUrlList)];
+}
     
     try {
 
@@ -196,38 +233,6 @@ fieldDecoratorKit.setDecorator({
       
       
 
-
-      // 提取图片链接函数
-      function extractImageUrls(imageData: any): string[] {
-        if (!imageData || !Array.isArray(imageData)) {
-          return [];
-        }
-        
-        const urls: string[] = [];
-        
-        // 处理嵌套数组结构
-        imageData.forEach((outerItem: any) => {
-          if (Array.isArray(outerItem)) {
-            // 遍历内层数组
-            outerItem.forEach((innerItem: any) => {
-              if (innerItem.tmp_url) {
-                // 清理URL中的反引号和空格
-                const cleanUrl = innerItem.tmp_url.replace(/[`\s]/g, '');
-                urls.push(cleanUrl);
-              }
-            });
-          } else if (outerItem.tmp_url) {
-            // 处理非嵌套结构（向后兼容）
-            const cleanUrl = outerItem.tmp_url.replace(/[`\s]/g, '');
-            urls.push(cleanUrl);
-          }
-        });
-        
-        return urls;
-      }
-
-      // 远程图片转Buffer工具函数
-    
 
       let taskResp;
       
@@ -238,7 +243,7 @@ fieldDecoratorKit.setDecorator({
           body: JSON.stringify({
             model: imageMethod,
             "prompt": imagePrompt,
-            "image": extractImageUrls(refImage),
+            "image": extractAllTmpUrls(refImage),
             "response_format":"url",
             "aspectRatio": aspectRatio
           })

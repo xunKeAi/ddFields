@@ -139,10 +139,6 @@ fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context, formItemParams: any) => {
     const { videoMethod, videoPrompt, refImage, size } = formItemParams;
-    
-   
-
-    
 
      /** 为方便查看日志，使用此方法替代console.log */
     function debugLog(arg: any) {
@@ -152,6 +148,34 @@ fieldDecoratorKit.setDecorator({
         ...arg
       }))
     }
+
+    function extractTmpUrl(data) {
+    // 排除 null/undefined 或空值场景
+    if (data === null || typeof data === 'undefined') {
+        return null;
+    }
+
+    // 如果是对象（包括数组、普通对象）
+    if (typeof data === 'object') {
+        // 先检查当前对象是否有 tmp_url 属性且为有效字符串
+        if ('tmp_url' in data && typeof data.tmp_url === 'string' && data.tmp_url.trim()) {
+            return data.tmp_url.trim();
+        }
+
+        // 遍历对象/数组的每一个元素（跳过 null 元素）
+        for (const key in data) {
+            if (data.hasOwnProperty(key) && data[key] !== null) {
+                const result = extractTmpUrl(data[key]);
+                if (result !== null) {
+                    return result;
+                }
+            }
+        }
+    }
+
+    // 非对象/没找到有效 tmp_url，返回 null
+    return null;
+}
     try {
      const createVideoUrl = `http://token.yishangcloud.cn/v1/videos`;
             // 构建请求参数，动态添加quality参数
@@ -164,11 +188,10 @@ fieldDecoratorKit.setDecorator({
             
             
             // 如果refImage存在且有元素的tmp_url，则将所有tmp_url组成数组赋值给input_reference
-            if (refImage && refImage.length > 0) {
-                requestBody.input_reference = refImage
-                    .filter(item => item && item.tmp_url) // 过滤出有tmp_url的元素
-                    .map(item => item.tmp_url.trim()); // 去除可能的空格并提取tmp_url
-            }
+          const tmpUrl = extractTmpUrl(refImage);
+          if (tmpUrl) { // 仅当找到有效 tmp_url 时赋值
+              requestBody.input_reference = [tmpUrl];
+          }
             
             const requestOptions = {
                 method: 'POST',

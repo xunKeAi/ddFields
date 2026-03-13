@@ -216,6 +216,7 @@ fieldDecoratorKit.setDecorator({
       const taskResp = await createTask.json();
 
       debugLog({ taskResp });
+      console.log(taskResp);
 
       // 检查令牌有效性
       if (taskResp.error?.message?.includes('无效的令牌')) {

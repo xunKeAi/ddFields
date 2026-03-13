@@ -73,20 +73,14 @@ fieldDecoratorKit.setDecorator({
         defaultValue: 'nano-banana',
         placeholder: '请选择模型',
         options: [
-          {
-            key: 'nano-banana',
-            title: 'nano-banana',
-          }, {
-            key: 'nano-banana-pro',
-            title: 'nano-banana-pro',
-          }, {
-            key: 'nano-banana-pro_2k',
-            title: 'nano-banana-pro-2k',
-          }
-          , {
-            key: 'nano-banana-pro_4k',
-            title: 'nano-banana-pro-4k',
-          }
+          { key: 'nano-banana',title: 'nano-banana'}, 
+          { key: 'nano-banana-pro',title: 'nano-banana-pro'},
+          { key: 'nano-banana-pro_1k',title: 'nano-banana-pro-1k'}, 
+          { key: 'nano-banana-pro_2k',title: 'nano-banana-pro-2k'}, 
+          { key: 'nano-banana-pro_4k',title: 'nano-banana-pro-4k'},
+          { key: 'nano-banana2-1K',title: 'nano-banana2-1K'},
+          { key: 'nano-banana2-2K',title: 'nano-banana2-2K'},
+          { key: 'nano-banana2-4K',title: 'nano-banana2-4K'},
         ]
       },
       validator: {

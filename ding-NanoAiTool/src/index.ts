@@ -18,6 +18,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips1': 'AI 字段异常，维护中可联系开发者咨询', 
         'errorTips2': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
         'errorTips3': '官方任务超时，请稍后重试',
+        'errorTips4': '提示词不能为空',
 
       },
       'en-US': {
@@ -28,6 +29,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips1': 'Model selection is required',
         'errorTips2': 'The token configuration is wrong. Please check whether your token is correct. If you still have any questions, you can join the Dingding group for consultation.',
         'errorTips3': 'Official task timeout, please try again later',
+        'errorTips4': 'Image editing prompt cannot be empty',
       },
       'ja-JP': {
         'imageMethod': 'モデル選択',
@@ -37,6 +39,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips1': 'モデル選択は必須です',
         'errorTips2': 'トークンの設定が間違っています。トークンが正しいかどうかを確認してください。まだ疑問がある場合は、DingDingグループに参加して相談してください。',
         'errorTips3': '公式タスクのタイムアウトが発生しました。後でもう一度お試しください。',
+        'errorTips4': '画像編集提示詞は空にすることはできません',
       },
   },
     errorMessages: {
@@ -44,6 +47,7 @@ fieldDecoratorKit.setDecorator({
     'error2': t('errorTips2'),
     'error1': t('errorTips1'),
     'error3': t('errorTips3'),
+    'error4': t('errorTips4'),
   },
   authorizations: 
     {
@@ -228,6 +232,13 @@ fieldDecoratorKit.setDecorator({
 }
     
     try {
+
+         if (!imagePrompt || imagePrompt.trim() === '') {        
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'error4'
+        } ;
+      }
 
       const createImageUrl = `http://token.yishangcloud.cn/v1/images/generations` 
       

@@ -211,9 +211,11 @@ fieldDecoratorKit.setDecorator({
       const requestBody: any = {
         model: "doubao-seedance-1-5-pro-251215",
         prompt: videoPrompt,
-        video_resolution: videoResolution,
-        seconds,
-        size,
+        metadata:{
+          ratio: size,
+          duration: Number(seconds),
+          resolution: videoResolution,
+        }
       };
 
       // 收集所有的 tmp_url 到数组中
@@ -231,7 +233,7 @@ fieldDecoratorKit.setDecorator({
           }
         }
         if (tmpUrls.length > 0) {
-          requestBody.input_reference = tmpUrls;
+          requestBody.images = tmpUrls;
         }
       }
       
@@ -241,6 +243,9 @@ fieldDecoratorKit.setDecorator({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       };
+
+      console.log(requestBody);
+      
 
       
       debugLog({ requestOptions });

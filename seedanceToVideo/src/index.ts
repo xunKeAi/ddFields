@@ -165,17 +165,15 @@ fieldDecoratorKit.setDecorator({
        props: {
         defaultValue: '10',
         options: [
-          { key: '2', title: '2秒'},
-          { key: '3', title: '3秒'},
-          { key: '4', title: '4秒'},
-          { key: '5', title: '5秒'},
-          { key: '6', title: '6秒'},
-          { key: '7', title: '7秒'},
-          { key: '8', title: '8秒'},
-          { key: '9', title: '9秒'},
-          { key: '10', title: '10秒'},
-          { key: '11', title: '11秒'},
-          { key: '12', title: '12秒'}
+          { key: '4', title: '4s'},
+          { key: '5', title: '5s'},
+          { key: '6', title: '6s'},
+          { key: '7', title: '7s'},
+          { key: '8', title: '8s'},
+          { key: '9', title: '9s'},
+          { key: '10', title: '10s'},
+          { key: '11', title: '11s'},
+          { key: '12', title: '12s'}
         ]
       },
       validator: {
@@ -208,8 +206,11 @@ fieldDecoratorKit.setDecorator({
 
     try {
       // 构建请求参数
+      const baseModelName = "doubao-seedance-1-5-pro";
+      const modelName = `${baseModelName}_${seconds}s_${videoResolution}`;
+      
       const requestBody: any = {
-        model: "doubao-seedance-1-5-pro-251215",
+        model: modelName,
         prompt: videoPrompt,
         metadata:{
           ratio: size,

@@ -244,7 +244,6 @@ fieldDecoratorKit.setDecorator({
         body: JSON.stringify(requestBody)
       };
 
-      console.log(requestBody);
       
 
       

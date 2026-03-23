@@ -236,16 +236,12 @@ fieldDecoratorKit.setDecorator({
       }
       
       // 收集所有参考图片的 tmp_url 到数组中
-    
-console.log(refImage);
-
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       };
 
-      console.log(requestBody);
       
       debugLog({ requestOptions });
 

@@ -282,9 +282,6 @@ fieldDecoratorKit.setDecorator({
       while (!pollingComplete && (Date.now() - startTime) < MAX_POLLING_TIME) {
         const getTaskDetail = await context.fetch(videoDetailUrl, detailRequestOptions, 'auth_id');
         videoDetailResp = await getTaskDetail.json();
-        console.log(videoDetailResp);
-        
-
         // 检查状态
         if (videoDetailResp?.status === 'failed') {
           return {

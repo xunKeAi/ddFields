@@ -316,7 +316,7 @@ fieldDecoratorKit.setDecorator({
         code: FieldExecuteCode.Success, // 0 表示请求成功
         // data 类型需与下方 resultType 定义一致
         data: [{
-          fileName: `${videoPrompt}.mp4`,
+          fileName: `${taskResp.id}.mp4`,
           type: 'video',
           url: videoUrl
         }]

@@ -237,6 +237,7 @@ fieldDecoratorKit.setDecorator({
           requestBody.images = tmpUrls;
         }
       }
+
       
       // 收集所有参考图片的 tmp_url 到数组中
       const requestOptions = {
@@ -244,8 +245,6 @@ fieldDecoratorKit.setDecorator({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       };
-
-      
 
       
       debugLog({ requestOptions });
@@ -283,6 +282,8 @@ fieldDecoratorKit.setDecorator({
       while (!pollingComplete && (Date.now() - startTime) < MAX_POLLING_TIME) {
         const getTaskDetail = await context.fetch(videoDetailUrl, detailRequestOptions, 'auth_id');
         videoDetailResp = await getTaskDetail.json();
+        console.log(videoDetailResp);
+        
 
         // 检查状态
         if (videoDetailResp?.status === 'failed') {
@@ -290,10 +291,10 @@ fieldDecoratorKit.setDecorator({
             code: FieldExecuteCode.Error,
             errorMessage: 'error2'
           };
-        } else if (videoDetailResp?.status === 'completed') {
+        } else if (videoDetailResp?.status === 'completed' || videoDetailResp?.status === 'succeeded') {
           pollingComplete = true;
           debugLog({ message: '视频生成完成' });
-        } else {
+        } else {          
           // 未完成，等待后继续轮询
           await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
         }

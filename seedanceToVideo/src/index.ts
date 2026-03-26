@@ -15,7 +15,7 @@ fieldDecoratorKit.setDecorator({
         'videoResolution': '视频分辨率',
         'size': '视频尺寸',
         'seconds': '视频时长',
-        'sizeTips': '视频尺寸为视频尺寸设置生成视频的宽高比例，可按横屏、竖屏或方形画幅选择auto则根据参考图自动选择最合适的宽高比',
+        'sizeTips': '视频尺寸为视频尺寸设置生成视频的宽高比例，可按横屏、竖屏或方形画幅选择adaptive则根据参考图自动选择最合适的宽高比',
         'videoPromptTips': '请输入视频编辑提示词',
         'refImageTips': '图片生成视频时建议提供1至2张参考图，支持 JPG、PNG、 WEBP、BMP、TIFF、GIF，单文件建议小于10MB',
         'errorTips1': 'AI 字段异常，维护中可联系开发者咨询',
@@ -124,9 +124,9 @@ fieldDecoratorKit.setDecorator({
       label: t('size'),
       component: FormItemComponent.SingleSelect,
       props: {
-        defaultValue: 'auto',
+        defaultValue: 'adaptive',
         options: [
-          { key: 'adaptive', title: 'auto' },
+          { key: 'adaptive', title: 'adaptive' },
           {
             key: '1:1',
             title: '1:1',
@@ -246,6 +246,8 @@ fieldDecoratorKit.setDecorator({
         body: JSON.stringify(requestBody)
       };
 
+      console.log(requestOptions);
+      
       
       debugLog({ requestOptions });
 

@@ -302,13 +302,14 @@ fieldDecoratorKit.setDecorator({
         throw new Error('未获取到图片URL');
       }
       
-     
+      // 从URL中提取文件名
+      const fileName = imageUrl.split('/').pop() || 'image.webp';
 
       return {
           code: FieldExecuteCode.Success, // 0 表示请求成功
           // data 类型需与下方 resultType 定义一致
           data: [{
-            fileName: 'image.png',
+            fileName: fileName,
             type: 'image',
             url: imageUrl
           }]

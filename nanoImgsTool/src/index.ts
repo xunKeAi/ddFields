@@ -377,10 +377,12 @@ fieldDecoratorKit.setDecorator({
         if (!imageUrl) {
           throw new Error(`第${i+1}个请求未获取到图片URL`);
         }
+
+              const fileName = imageUrl.split('/').pop() || 'image.webp';
         
         // 添加到结果列表
         imageResults.push({
-          fileName: `image_${i+1}.png`,
+          fileName: fileName,
           type: 'image',
           url: imageUrl
         });

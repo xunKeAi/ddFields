@@ -23,6 +23,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips2': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
         'errorTips3': '官方任务超时，请稍后重试',
         'errorTips4': '至少需要有一个提示词不能为空',
+        'picType': '图片输出格式',
 
 
       },
@@ -39,6 +40,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips2': 'The token configuration is wrong. Please check whether your token is correct. If you still have any questions, you can join the Dingding group for consultation.',
         'errorTips3': 'Official task timeout, please try again later',
         'errorTips4': 'At least one prompt word cannot be empty',
+        'picType': 'Image output format',
       },
       'ja-JP': {
         'imageMethod': 'モデル選択',
@@ -53,6 +55,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips2': 'トークンの設定が間違っています。トークンが正しいかどうかを確認してください。まだ疑問がある場合は、DingDingグループに参加して相談してください。',
         'errorTips3': '公式タスクのタイムアウトが発生しました。後でもう一度お試しください。',
         'errorTips4': '少なくとも1つの提示詞は空にすることはできません',
+        'picType': '画像出力フォーマット',
       },
   },
     errorMessages: {
@@ -231,6 +234,26 @@ fieldDecoratorKit.setDecorator({
         required: false,
       }
     },
+    
+    {
+      key: 'picType',
+      label: t('picType'),
+      component: FormItemComponent.SingleSelect,
+      props: {
+        defaultValue: 'png',
+        options: [
+          { key: 'png',title: 'png'},
+          { key: 'jpg',title: 'jpg'},
+          { key: 'webp',title: 'webp'},
+        ]
+      },
+       tooltips: {
+        title:  '请选择需要输出的图片类型（4K画质强制输出为webp格式）不同格式画质有不一致，最优为PNG=webp > jpg'
+      },
+      validator: {
+        required: true,
+      }
+    },
   ],
   // 定义AI 字段的返回结果类型
   resultType: {
@@ -238,7 +261,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context: any, formItemParams: any) => {
-    const { imageMethod, imagePrompt, refImage, aspectRatio ,imagePromptOne,imagePromptTwo,imagePromptThree,imagePromptFour,imagePromptFive} = formItemParams;    
+    const { imageMethod, imagePrompt, refImage, aspectRatio ,imagePromptOne,imagePromptTwo,imagePromptThree,imagePromptFour,imagePromptFive,picType} = formItemParams;    
         
      /** 为方便查看日志，使用此方法替代console.log */
     function debugLog(arg: any) {
@@ -319,7 +342,8 @@ fieldDecoratorKit.setDecorator({
             "prompt": prompt,
             "image": extractAllTmpUrls(refImage),
             "response_format":"url",
-            "aspectRatio": aspectRatio
+            "aspectRatio": aspectRatio,
+             "picType": picType
           })
         };
       });

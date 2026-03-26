@@ -36,7 +36,9 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
       'aspectRatio': '图像比例',
       'errorTips1': 'AI 字段异常，维护中可联系开发者咨询',
       'errorTips2': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
-      'errorTips3': '官方任务超时，请稍后重试'
+      'errorTips3': '官方任务超时，请稍后重试',
+      'errorTips4': '提示词不能为空',
+      'picType': '图片输出格式'
     },
     'en-US': {
       'imageMethod': 'Model selection',
@@ -45,7 +47,9 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
       'aspectRatio': 'Aspect ratio',
       'errorTips1': 'Model selection is required',
       'errorTips2': 'The token configuration is wrong. Please check whether your token is correct. If you still have any questions, you can join the Dingding group for consultation.',
-      'errorTips3': 'Official task timeout, please try again later'
+      'errorTips3': 'Official task timeout, please try again later',
+      'errorTips4': 'Image editing prompt cannot be empty',
+      'picType': 'Image output format'
     },
     'ja-JP': {
       'imageMethod': 'モデル選択',
@@ -54,14 +58,17 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
       'aspectRatio': '画像比',
       'errorTips1': 'モデル選択は必須です',
       'errorTips2': 'トークンの設定が間違っています。トークンが正しいかどうかを確認してください。まだ疑問がある場合は、DingDingグループに参加して相談してください。',
-      'errorTips3': '公式タスクのタイムアウトが発生しました。後でもう一度お試しください。'
+      'errorTips3': '公式タスクのタイムアウトが発生しました。後でもう一度お試しください。',
+      'errorTips4': '画像編集提示詞は空にすることはできません',
+      'picType': '画像出力形式'
     }
   },
   errorMessages: {
     // 定义错误信息集合
     'error2': t('errorTips2'),
     'error1': t('errorTips1'),
-    'error3': t('errorTips3')
+    'error3': t('errorTips3'),
+    'error4': t('errorTips4')
   },
   authorizations: {
     id: 'auth_id',
@@ -99,11 +106,23 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
         key: 'nano-banana-pro',
         title: 'nano-banana-pro'
       }, {
+        key: 'nano-banana-pro_1k',
+        title: 'nano-banana-pro-1k'
+      }, {
         key: 'nano-banana-pro_2k',
         title: 'nano-banana-pro-2k'
       }, {
         key: 'nano-banana-pro_4k',
         title: 'nano-banana-pro-4k'
+      }, {
+        key: 'nano-banana2-1K',
+        title: 'nano-banana2-1K'
+      }, {
+        key: 'nano-banana2-2K',
+        title: 'nano-banana2-2K'
+      }, {
+        key: 'nano-banana2-4K',
+        title: 'nano-banana2-4K'
       }]
     },
     validator: {
@@ -179,6 +198,29 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
     validator: {
       required: false
     }
+  }, {
+    key: 'picType',
+    label: t('picType'),
+    component: _dingtalkDocsCoolApp.FormItemComponent.SingleSelect,
+    props: {
+      defaultValue: 'png',
+      options: [{
+        key: 'png',
+        title: 'png'
+      }, {
+        key: 'jpg',
+        title: 'jpg'
+      }, {
+        key: 'webp',
+        title: 'webp'
+      }]
+    },
+    tooltips: {
+      title: '请选择需要输出的图片类型（4K画质强制输出为webp格式）不同格式画质有不一致，最优为PNG=webp > jpg'
+    },
+    validator: {
+      required: true
+    }
   }],
   // 定义AI 字段的返回结果类型
   resultType: {
@@ -187,7 +229,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var imageMethod, imagePrompt, refImage, aspectRatio, debugLog, extractAllTmpUrls, _taskResp$error, createImageUrl, taskResp, jsonRequestOptions, errorData, initialResult, imageUrl, _t;
+      var imageMethod, imagePrompt, refImage, aspectRatio, picType, debugLog, extractAllTmpUrls, _taskResp$error, createImageUrl, taskResp, jsonRequestOptions, errorData, initialResult, imageUrl, fileName, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -229,9 +271,18 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
                 timestamp: new Date().toISOString()
               }, arg)));
             };
-            imageMethod = formItemParams.imageMethod, imagePrompt = formItemParams.imagePrompt, refImage = formItemParams.refImage, aspectRatio = formItemParams.aspectRatio;
+            imageMethod = formItemParams.imageMethod, imagePrompt = formItemParams.imagePrompt, refImage = formItemParams.refImage, aspectRatio = formItemParams.aspectRatio, picType = formItemParams.picType;
             /** 为方便查看日志，使用此方法替代console.log */
             _context.p = 1;
+            if (!(!imagePrompt || imagePrompt.trim() === '')) {
+              _context.n = 2;
+              break;
+            }
+            return _context.a(2, {
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
+              errorMessage: 'error4'
+            });
+          case 2:
             createImageUrl = "http://token.yishangcloud.cn/v1/images/generations";
             jsonRequestOptions = {
               method: 'POST',
@@ -243,126 +294,129 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
                 "prompt": imagePrompt,
                 "image": extractAllTmpUrls(refImage),
                 "response_format": "url",
-                "aspectRatio": aspectRatio
+                "aspectRatio": aspectRatio,
+                "picType": picType
               })
             };
             console.log(jsonRequestOptions);
-            _context.n = 2;
+            _context.n = 3;
             return context.fetch(createImageUrl, jsonRequestOptions, 'auth_id');
-          case 2:
+          case 3:
             taskResp = _context.v;
             if (!((_taskResp$error = taskResp.error) !== null && _taskResp$error !== void 0 && (_taskResp$error = _taskResp$error.message) !== null && _taskResp$error !== void 0 && _taskResp$error.includes('无效的令牌'))) {
-              _context.n = 3;
+              _context.n = 4;
               break;
             }
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
               errorMessage: 'error2'
             });
-          case 3:
+          case 4:
             if (taskResp) {
-              _context.n = 4;
+              _context.n = 5;
               break;
             }
             throw new Error('请求未能成功发送');
-          case 4:
+          case 5:
             debugLog({
               '=1 图片创建接口结果': taskResp
             });
             if (taskResp.ok) {
-              _context.n = 7;
+              _context.n = 8;
               break;
             }
-            _context.n = 5;
+            _context.n = 6;
             return taskResp.json()["catch"](function () {
               return {};
             });
-          case 5:
+          case 6:
             errorData = _context.v;
             console.error('API请求失败:', taskResp.status, errorData);
 
             // 检查HTTP错误响应中的无效令牌错误
             if (!(errorData.error && errorData.error.message)) {
-              _context.n = 6;
+              _context.n = 7;
               break;
             }
             throw new Error(errorData.error.message);
-          case 6:
-            throw new Error("API\u8BF7\u6C42\u5931\u8D25: ".concat(taskResp.status, " ").concat(taskResp.statusText));
           case 7:
-            _context.n = 8;
-            return taskResp.json();
+            throw new Error("API\u8BF7\u6C42\u5931\u8D25: ".concat(taskResp.status, " ").concat(taskResp.statusText));
           case 8:
+            _context.n = 9;
+            return taskResp.json();
+          case 9:
             initialResult = _context.v;
             if (!(!initialResult || !initialResult.data || !Array.isArray(initialResult.data) || initialResult.data.length === 0)) {
-              _context.n = 9;
+              _context.n = 10;
               break;
             }
             throw new Error('API响应数据格式不正确或为空');
-          case 9:
+          case 10:
             console.log('initialResult:', initialResult);
             imageUrl = initialResult.data[0].url;
             console.log('imageUrl:', imageUrl);
             if (imageUrl) {
-              _context.n = 10;
+              _context.n = 11;
               break;
             }
             throw new Error('未获取到图片URL');
-          case 10:
+          case 11:
+            // 从URL中提取文件名
+            fileName = imageUrl.split('/').pop() || 'image.webp';
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
               // 0 表示请求成功
               // data 类型需与下方 resultType 定义一致
               data: [{
-                fileName: 'image.png',
+                fileName: fileName,
                 type: 'image',
                 url: imageUrl
               }]
             });
-          case 11:
-            _context.p = 11;
+          case 12:
+            _context.p = 12;
             _t = _context.v;
             console.log('====error', String(_t));
             if (!String(_t).includes('无可用渠道')) {
-              _context.n = 12;
+              _context.n = 13;
               break;
             }
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
               errorMessage: 'error1'
             });
-          case 12:
+          case 13:
             if (!String(_t).includes('timeout')) {
-              _context.n = 13;
+              _context.n = 14;
               break;
             }
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
               errorMessage: 'error3'
             });
-          case 13:
+          case 14:
             if (!(String(_t).includes('令牌额度已用尽') || String(_t).includes('quota') || String(_t).includes('额度'))) {
-              _context.n = 14;
+              _context.n = 15;
               break;
             }
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.QuotaExhausted
             });
-          case 14:
+          case 15:
             if (!(String(_t).includes('无效的令牌') || String(_t).includes('令牌'))) {
-              _context.n = 15;
+              _context.n = 16;
               break;
             }
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.ConfigError
             });
-          case 15:
+          case 16:
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
               errorMessage: 'error3'
             });
         }
-      }, _callee, null, [[1, 11]]);
+      }, _callee, null, [[1, 12]]);
     }));
     function execute(_x, _x2) {
       return _execute.apply(this, arguments);

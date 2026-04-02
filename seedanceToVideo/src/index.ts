@@ -219,7 +219,7 @@ fieldDecoratorKit.setDecorator({
         }
       };
 
-      // 收集所有的 tmp_url 到数组中
+      // 收集所有的 tmp_url 到数组中，最多取前两张
       if (refImage && Array.isArray(refImage)) {
         const tmpUrls = [];
         for (const subArray of refImage) {
@@ -229,7 +229,15 @@ fieldDecoratorKit.setDecorator({
                 // 移除 tmp_url 中的空格和反引号
                 const cleanUrl = item.tmp_url.trim().replace(/^`|`$/g, '');
                 tmpUrls.push(cleanUrl);
+                // 最多取前两张
+                if (tmpUrls.length >= 2) {
+                  break;
+                }
               }
+            }
+            // 最多取前两张
+            if (tmpUrls.length >= 2) {
+              break;
             }
           }
         }

@@ -18,6 +18,7 @@ fieldDecoratorKit.setDecorator({
         'sizeTips': '视频尺寸为视频尺寸设置生成视频的宽高比例，可按横屏、竖屏或方形画幅选择adaptive则根据参考图自动选择最合适的宽高比',
         'videoPromptTips': '请输入视频编辑提示词',
         'refImageTips': '图片生成视频时最多支持4张参考图，支持 JPG、PNG、 WEBP、BMP、TIFF、GIF，单文件建议小于10MB',
+        'videoResolutionTips': '参考图模式下画质支持720p，选择1080p后会自动切换为720p',
         'errorTips1': 'AI 字段异常，维护中可联系开发者咨询',
         'errorTips2': '视频创建失败，请检查您的提示词或图片信息提示词不允许出现暴力等内容',
         'errorTips3': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
@@ -113,6 +114,9 @@ fieldDecoratorKit.setDecorator({
           { key: '720p',title: '720p'},
           { key: '480p',title: '480p'},
         ]
+      },
+       tooltips: {
+        title:  t('videoResolutionTips'),
       },
       validator: {
         required: true,

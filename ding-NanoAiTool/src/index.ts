@@ -178,7 +178,7 @@ fieldDecoratorKit.setDecorator({
       label: t('picType'),
       component: FormItemComponent.SingleSelect,
       props: {
-        defaultValue: 'png',
+        defaultValue: 'jpg',
         options: [
           { key: 'png',title: 'png'},
           { key: 'jpg',title: 'jpg'},
@@ -326,8 +326,8 @@ fieldDecoratorKit.setDecorator({
       }
       
       // 从URL中提取文件名，根据picType设置默认格式
-      const defaultExt = picType === 'png' ? 'png' : 'webp';
-      const fileName = imageUrl.split('/').pop() || `image.${defaultExt}`;
+      const fileName =`image.${picType}`;
+      
 
       return {
           code: FieldExecuteCode.Success, // 0 表示请求成功

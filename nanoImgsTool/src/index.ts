@@ -402,7 +402,7 @@ fieldDecoratorKit.setDecorator({
           throw new Error(`第${i+1}个请求未获取到图片URL`);
         }
 
-              const fileName = imageUrl.split('/').pop() || 'image.webp';
+      const fileName =`image.${picType}`;
         
         // 添加到结果列表
         imageResults.push({

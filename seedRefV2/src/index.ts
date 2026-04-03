@@ -251,7 +251,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context, formItemParams: any) => {
-    const { videoMethod, videoPrompt, refImage, size, seconds, videoResolution } = formItemParams;
+    const { videoMethod, videoPrompt, refImage, refVideo, refAudio, size, seconds, videoResolution } = formItemParams;
 
     /** 为方便查看日志，使用此方法替代console.log */
     const debugLog = (arg: any) => {

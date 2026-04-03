@@ -7,7 +7,7 @@ const { t } = fieldDecoratorKit;
 fieldDecoratorKit.setDomainList(['api.exchangerate-api.com','token.yishangcloud.cn','open.feishu.cn','pay.xunkecloud.cn']);
 
 fieldDecoratorKit.setDecorator({
-  name: 'AI 图片编辑(Nano)',
+  name: 'AI生图（Nano 多图模式）',
   // 定义AI 字段的i18n语言资源
   i18nMap: {
     'zh-CN': {

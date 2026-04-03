@@ -325,8 +325,9 @@ fieldDecoratorKit.setDecorator({
         throw new Error('未获取到图片URL');
       }
       
-      // 从URL中提取文件名
-      const fileName = imageUrl.split('/').pop() || 'image.webp';
+      // 从URL中提取文件名，根据picType设置默认格式
+      const defaultExt = picType === 'png' ? 'png' : 'webp';
+      const fileName = imageUrl.split('/').pop() || `image.${defaultExt}`;
 
       return {
           code: FieldExecuteCode.Success, // 0 表示请求成功

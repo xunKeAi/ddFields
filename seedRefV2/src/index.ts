@@ -279,9 +279,7 @@ fieldDecoratorKit.setDecorator({
           ratio: size,
           duration: Number(seconds),
           resolution: videoResolution,
-        },
-        videos: [],
-        audios: [],
+        }
       };
 
       console.log(requestBody);
@@ -333,10 +331,6 @@ fieldDecoratorKit.setDecorator({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       };
-
-      console.log(requestOptions);
-      
-      
       debugLog({ requestOptions });
 
       // 创建视频任务

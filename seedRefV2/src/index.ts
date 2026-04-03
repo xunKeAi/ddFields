@@ -270,7 +270,10 @@ fieldDecoratorKit.setDecorator({
 
     try {
       // 构建请求参数
-      const modelName = `${videoMethod}_${videoResolution}_${seconds}s`;
+      let modelName = `${videoMethod}_${videoResolution}_${seconds}s`;
+      if (videoMethod === 'doubao-seedance-2-0') {
+        modelName = `${videoMethod}-${videoResolution}_${seconds}s`;
+      }
       
       const requestBody: any = {
         model: modelName,
@@ -331,6 +334,8 @@ fieldDecoratorKit.setDecorator({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       };
+      console.log(requestOptions);
+      
       debugLog({ requestOptions });
 
       // 创建视频任务

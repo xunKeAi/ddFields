@@ -287,85 +287,43 @@ fieldDecoratorKit.setDecorator({
       console.log(requestBody);
       
 
-      // 收集所有的 tmp_url 到数组中，最多取前9张
-      if (refImage && Array.isArray(refImage)) {
-        const tmpUrls = [];
-        for (const subArray of refImage) {
-          if (subArray && Array.isArray(subArray)) {
-            for (const item of subArray) {
-              if (item?.tmp_url) {
-                // 移除 tmp_url 中的空格和反引号
-                const cleanUrl = item.tmp_url.trim().replace(/^`|`$/g, '');
-                tmpUrls.push(cleanUrl);
-                // 最多取前9张
-                if (tmpUrls.length >= 9) {
-                  break;
+      // 收集附件URL的通用函数
+      const collectAttachmentUrls = (attachments: any, maxCount: number): string[] => {
+        const urls: string[] = [];
+        if (attachments && Array.isArray(attachments)) {
+          for (const subArray of attachments) {
+            if (subArray && Array.isArray(subArray)) {
+              for (const item of subArray) {
+                if (item?.tmp_url) {
+                  // 移除 tmp_url 中的空格和反引号
+                  const cleanUrl = item.tmp_url.trim().replace(/^`|`$/g, '');
+                  urls.push(cleanUrl);
+                  // 达到最大数量时停止
+                  if (urls.length >= maxCount) {
+                    return urls;
+                  }
                 }
               }
             }
-            // 最多取前9张
-            if (tmpUrls.length >= 9) {
-              break;
-            }
           }
         }
-        if (tmpUrls.length > 0) {
-          requestBody.images = tmpUrls;
-        }
-      }
+        return urls;
+      };
 
-      // 收集所有的 refVideo tmp_url 到数组中，最多取前3个
-      if (refVideo && Array.isArray(refVideo)) {
-        const videoUrls = [];
-        for (const subArray of refVideo) {
-          if (subArray && Array.isArray(subArray)) {
-            for (const item of subArray) {
-              if (item?.tmp_url) {
-                // 移除 tmp_url 中的空格和反引号
-                const cleanUrl = item.tmp_url.trim().replace(/^`|`$/g, '');
-                videoUrls.push(cleanUrl);
-                // 最多取前3个
-                if (videoUrls.length >= 3) {
-                  break;
-                }
-              }
-            }
-            // 最多取前3个
-            if (videoUrls.length >= 3) {
-              break;
-            }
-          }
-        }
-        if (videoUrls.length > 0) {
-          requestBody.videos = videoUrls;
-        }
-      }
+      // 收集各种附件URL
+      const imageUrls = collectAttachmentUrls(refImage, 9);
+      const videoUrls = collectAttachmentUrls(refVideo, 3);
+      const audioUrls = collectAttachmentUrls(refAudio, 3);
 
-      // 收集所有的 refAudio tmp_url 到数组中，最多取前3个
-      if (refAudio && Array.isArray(refAudio)) {
-        const audioUrls = [];
-        for (const subArray of refAudio) {
-          if (subArray && Array.isArray(subArray)) {
-            for (const item of subArray) {
-              if (item?.tmp_url) {
-                // 移除 tmp_url 中的空格和反引号
-                const cleanUrl = item.tmp_url.trim().replace(/^`|`$/g, '');
-                audioUrls.push(cleanUrl);
-                // 最多取前3个
-                if (audioUrls.length >= 3) {
-                  break;
-                }
-              }
-            }
-            // 最多取前3个
-            if (audioUrls.length >= 3) {
-              break;
-            }
-          }
-        }
-        if (audioUrls.length > 0) {
-          requestBody.audios = audioUrls;
-        }
+      // 添加到请求体
+      if (imageUrls.length > 0) {
+        requestBody.images = imageUrls;
+      }
+      if (videoUrls.length > 0) {
+        requestBody.videos = videoUrls;
+      }
+      if (audioUrls.length > 0) {
+        requestBody.audios = audioUrls;
       }
 
       

@@ -20,6 +20,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips3': '官方任务超时，请稍后重试',
         'errorTips4': '提示词不能为空',
         'picType': '图片输出格式',
+        'genQty': '生成数量',
 
       },
       'en-US': {
@@ -32,6 +33,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips3': 'Official task timeout, please try again later',
         'errorTips4': 'Image editing prompt cannot be empty',
         'picType': 'Image output format',
+        'genQty': 'Generation quantity',
       },
       'ja-JP': {
         'imageMethod': 'モデル選択',
@@ -43,6 +45,7 @@ fieldDecoratorKit.setDecorator({
         'errorTips3': '公式タスクのタイムアウトが発生しました。後でもう一度お試しください。',
         'errorTips4': '画像編集提示詞は空にすることはできません',
         'picType': '画像出力形式',
+        'genQty': '生成数量',
       },
   },
     errorMessages: {
@@ -192,6 +195,24 @@ fieldDecoratorKit.setDecorator({
         required: true,
       }
     },
+    {
+      key: 'genQty',
+      label: t('genQty'),
+      component: FormItemComponent.SingleSelect,
+      props: {
+        defaultValue: '1',
+        options: [
+          { key: '1',title: '1'},
+          { key: '2',title: '2'},
+          { key: '3',title: '3'},
+          { key: '4',title: '4'},
+          { key: '5',title: '5'},
+        ]
+      },
+      validator: {
+        required: true,
+      }
+    },
   ],
   // 定义AI 字段的返回结果类型
   resultType: {
@@ -199,7 +220,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context: any, formItemParams: any) => {
-    const { imageMethod, imagePrompt, refImage, aspectRatio, picType } = formItemParams;    
+    const { imageMethod, imagePrompt, refImage, aspectRatio, picType, genQty } = formItemParams;    
         
      /** 为方便查看日志，使用此方法替代console.log */
     function debugLog(arg: any) {
@@ -278,67 +299,59 @@ fieldDecoratorKit.setDecorator({
         };
         
         console.log(jsonRequestOptions);
-        
 
-        
-        taskResp = await context.fetch(createImageUrl, jsonRequestOptions, 'auth_id');
-        // 检查令牌有效性
-      if (taskResp.error?.message?.includes('无效的令牌')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error2'
-        };
-      }
-
+         const quantity = parseInt(genQty?.value || genQty || '1', 10);
+    
+    // 创建并发请求
+    const promises = Array.from({ length: quantity }, async (_, index) => {
+      const taskResp = await context.fetch(createImageUrl, jsonRequestOptions, 'auth_id_1');
       
-
       if (!taskResp) {
-        throw new Error('请求未能成功发送');
+        throw new Error(`请求 ${index + 1} 未能成功发送`);
       }
 
-      debugLog({'=1 图片创建接口结果': taskResp});
+      debugLog({ [`=1 图片创建接口结果 ${index + 1}`]: taskResp});
       
       if (!taskResp.ok) {
-        const errorData = await taskResp.json().catch(() => ({}));
-        console.error('API请求失败:', taskResp.status, errorData);
+        const errorData: any = await taskResp.json().catch(() => ({}));
+        console.error(`API请求 ${index + 1} 失败:`, taskResp.status, errorData);
         
         // 检查HTTP错误响应中的无效令牌错误
         if (errorData.error && errorData.error.message ) {
           throw new Error(errorData.error.message);
         }
         
-        throw new Error(`API请求失败: ${taskResp.status} ${taskResp.statusText}`);
+        throw new Error(`API请求 ${index + 1} 失败: ${taskResp.status} ${taskResp.statusText}`);
       }
       
-      const initialResult = await taskResp.json();
-      
-      if (!initialResult || !initialResult.data || !Array.isArray(initialResult.data) || initialResult.data.length === 0) {
-        throw new Error('API响应数据格式不正确或为空');
-      }
-      console.log('initialResult:', initialResult);
-      
-      
-      let imageUrl = initialResult.data[0].url;
-      console.log('imageUrl:', imageUrl);
-      
-      if (!imageUrl) {
-        throw new Error('未获取到图片URL');
-      }
-      
-      // 从URL中提取文件名，根据picType设置默认格式
-      const fileName =`image.${picType}`;
-      
+      const result: any = await taskResp.json();
 
-      return {
+      
+      // 检查API返回的余额耗尽错误
+      if (!result || !result.data || !Array.isArray(result.data) || result.data.length === 0) {
+        throw new Error(`API响应 ${index + 1} 数据格式不正确或为空`);
+      }
+      
+      return result.data[0].url;
+    });
+    
+    // 等待所有请求完成
+    // 等待所有请求完成
+    const imageUrls = await Promise.all(promises);
+    console.log('All image URLs:', imageUrls);
+    
+    // 构建返回数据
+    const data = imageUrls.map((url, index) => ({
+      fileName: `image_${index + 1}.${picType}`,
+      url: url,
+      type: "image"
+    }));
+
+       return {
           code: FieldExecuteCode.Success, // 0 表示请求成功
           // data 类型需与下方 resultType 定义一致
-          data: [{
-            fileName: fileName,
-            type: 'image',
-            url: imageUrl
-          }]
+          data: data
         };
-
       
     } catch (e) {
       console.log('====error', String(e));

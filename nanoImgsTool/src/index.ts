@@ -367,49 +367,62 @@ fieldDecoratorKit.setDecorator({
 
       // 处理所有响应
       const imageResults = [];
+      let hasErrors = false;
+      
       for (let i = 0; i < responses.length; i++) {
-        const taskResp = responses[i];
-        
-        if (!taskResp) {
-          throw new Error(`第${i+1}个请求未能成功发送`);
-        }
-
-        debugLog({[`=1 图片创建接口结果 ${i+1}`]: taskResp});
-        
-        if (!taskResp.ok) {
-          const errorData = await taskResp.json().catch(() => ({}));
-          console.error(`第${i+1}个API请求失败:`, taskResp.status, errorData);
+        try {
+          const taskResp = responses[i];
           
-          // 检查HTTP错误响应中的无效令牌错误
-          if (errorData.error && errorData.error.message ) {
-            throw new Error(errorData.error.message);
+          if (!taskResp) {
+            console.error(`第${i+1}个请求未能成功发送`);
+            hasErrors = true;
+            continue;
+          }
+
+          debugLog({[`=1 图片创建接口结果 ${i+1}`]: taskResp});
+          
+          if (!taskResp.ok) {
+            const errorData = await taskResp.json().catch(() => ({}));
+            console.error(`第${i+1}个API请求失败:`, taskResp.status, errorData);
+            hasErrors = true;
+            continue;
           }
           
-          throw new Error(`第${i+1}个API请求失败: ${taskResp.status} ${taskResp.statusText}`);
-        }
-        
-        const initialResult = await taskResp.json();
-        
-        if (!initialResult || !initialResult.data || !Array.isArray(initialResult.data) || initialResult.data.length === 0) {
-          throw new Error(`第${i+1}个API响应数据格式不正确或为空`);
-        }
-        console.log(`第${i+1}个请求的initialResult:`, initialResult);
-        
-        const imageUrl = initialResult.data[0].url;
-        console.log(`第${i+1}个请求的imageUrl:`, imageUrl);
-        
-        if (!imageUrl) {
-          throw new Error(`第${i+1}个请求未获取到图片URL`);
-        }
+          const initialResult = await taskResp.json();
+          
+          if (!initialResult || !initialResult.data || !Array.isArray(initialResult.data) || initialResult.data.length === 0) {
+            console.error(`第${i+1}个API响应数据格式不正确或为空`);
+            hasErrors = true;
+            continue;
+          }
+          console.log(`第${i+1}个请求的initialResult:`, initialResult);
+          
+          const imageUrl = initialResult.data[0].url;
+          console.log(`第${i+1}个请求的imageUrl:`, imageUrl);
+          
+          if (!imageUrl) {
+            console.error(`第${i+1}个请求未获取到图片URL`);
+            hasErrors = true;
+            continue;
+          }
 
-      const fileName =`image.${picType}`;
-        
-        // 添加到结果列表
-        imageResults.push({
-          fileName: fileName,
-          type: 'image',
-          url: imageUrl
-        });
+          const fileName =`image.${picType}`;
+          
+          // 添加到结果列表
+          imageResults.push({
+            fileName: fileName,
+            type: 'image',
+            url: imageUrl
+          });
+        } catch (error) {
+          console.error(`处理第${i+1}个请求时出错:`, error);
+          hasErrors = true;
+        }
+      }
+      
+      // 如果所有请求都失败了，才抛出错误
+      if (imageResults.length === 0 && hasErrors) {
+        throw new Error('所有图片请求都失败了');
       }
       
       return {

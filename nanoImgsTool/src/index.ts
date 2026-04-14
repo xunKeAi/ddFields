@@ -321,7 +321,6 @@ fieldDecoratorKit.setDecorator({
       if (imagePromptThree) prompts.push(imagePromptThree);
       if (imagePromptFour) prompts.push(imagePromptFour);
       if (imagePromptFive) prompts.push(imagePromptFive);
-      console.log(prompts);
       
       // 如果没有提示词，抛出错误
       if (prompts.length === 0) {
@@ -348,16 +347,60 @@ fieldDecoratorKit.setDecorator({
         };
       });
       
-      console.log('请求选项列表:', requestOptionsList);
       
-      // 并发发起所有请求
-      const responses = await Promise.all(
-        requestOptionsList.map(options => context.fetch(createImageUrl, options, 'auth_id'))
-      );
+      // 创建超时Promise
+      const timeoutPromise = new Promise<{ timeout: boolean }>((resolve) => {
+        setTimeout(() => resolve({ timeout: true }), 850000); // 850秒
+      });
+
+      // 为每个请求添加超时处理
+      const requestPromises = requestOptionsList.map(options => {
+        return context.fetch(createImageUrl, options, 'auth_id');
+      });
+
+      // 使用Promise.race实现全局超时
+      let responses: any[] = [];
+      let isTimeout = false;
+
+      try {
+        // 等待所有请求完成或超时
+        const raceResult = await Promise.race([
+          Promise.all(requestPromises),
+          timeoutPromise
+        ]);
+
+        // 检查是否是超时结果
+        if (typeof raceResult === 'object' && raceResult !== null && 'timeout' in raceResult) {
+          isTimeout = true;
+          // 超时后，收集已完成的请求结果
+          // 这里需要处理，因为Promise.all会全部失败如果有超时
+          // 所以我们需要修改策略，使用Promise.allSettled
+          const settledResults = await Promise.allSettled(requestPromises);
+          responses = settledResults.map(result => {
+            if (result.status === 'fulfilled') {
+              return result.value;
+            }
+            return null; // 标记失败的请求
+          });
+        } else {
+          // 类型断言，确保TypeScript知道这是一个数组
+          responses = raceResult as any[];
+        }
+      } catch (error) {
+        console.error('请求过程中发生错误:', error);
+        // 发生错误时，尝试收集已完成的请求
+        const settledResults = await Promise.allSettled(requestPromises);
+        responses = settledResults.map(result => {
+          if (result.status === 'fulfilled') {
+            return result.value;
+          }
+          return null; // 标记失败的请求
+        });
+      }
       
       // 检查令牌有效性
       for (const resp of responses) {
-        if (resp.error?.message?.includes('无效的令牌')) {
+        if (resp && resp.error?.message?.includes('无效的令牌')) {
           return {
             code: FieldExecuteCode.Error,
             errorMessage: 'error2'
@@ -374,7 +417,7 @@ fieldDecoratorKit.setDecorator({
           const taskResp = responses[i];
           
           if (!taskResp) {
-            console.error(`第${i+1}个请求未能成功发送`);
+            console.error(`第${i+1}个请求未能成功发送或超时`);
             hasErrors = true;
             continue;
           }
@@ -418,6 +461,11 @@ fieldDecoratorKit.setDecorator({
           console.error(`处理第${i+1}个请求时出错:`, error);
           hasErrors = true;
         }
+      }
+
+      // 打印超时信息
+      if (isTimeout) {
+        console.log('请求超时，返回已完成的结果');
       }
       
       // 如果所有请求都失败了，才抛出错误

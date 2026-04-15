@@ -293,8 +293,12 @@ fieldDecoratorKit.setDecorator({
       // 确保总数量不超过5
       let totalUrls = imageUrls.length + videoUrls.length;
       if (totalUrls > 5) {
-        // 优先保留图片，如果图片数量超过5则只保留前5张
-        if (imageUrls.length >= 5) {
+        // 如果图片超过5张且有视频，则保留4张图片和1个视频
+        if (imageUrls.length >= 5 && videoUrls.length > 0) {
+          imageUrls.splice(4); // 保留前4张图片
+          videoUrls.splice(1); // 只保留1个视频
+        } else if (imageUrls.length >= 5) {
+          // 图片超过5张但没有视频，保留前5张图片
           imageUrls.splice(5);
           videoUrls.length = 0;
         } else {

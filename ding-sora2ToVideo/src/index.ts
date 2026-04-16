@@ -79,17 +79,7 @@ fieldDecoratorKit.setDecorator({
           {
             key: 'sora-2',
             title: 'sora-2',
-          },
-          {
-            key: 'sora-2-hd',
-            title: 'sora-2-hd',
-          },{
-            key: 'sora-2-stable',
-            title: 'sora-2-stable',
-          },{
-            key: 'sora-2-pro',
-            title: 'sora-2-pro',
-          },
+          }
         ]
       },
       validator: {

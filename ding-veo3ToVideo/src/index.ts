@@ -313,10 +313,10 @@ fieldDecoratorKit.setDecorator({
           code: FieldExecuteCode.ConfigError, 
         };
       }
-       return {
-          code: FieldExecuteCode.Error, 
-          errorMessage: 'error1',
-        };
+        return {
+      code: FieldExecuteCode.Error,
+      extra: { errorMessage: String(e) }
+    };
     }
   },
 });

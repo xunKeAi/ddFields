@@ -308,10 +308,10 @@ fieldDecoratorKit.setDecorator({
         };
       }
 
-      return {
-        code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
-      };
+     return {
+      code: FieldExecuteCode.Error,
+      extra: { errorMessage: String(e) }
+    };
     }
   },
 });

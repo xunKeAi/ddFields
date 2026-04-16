@@ -94,8 +94,8 @@ fieldDecoratorKit.setDecorator({
       tooltips: {
         title:  t('refImageTips')
       },
-      props: {
-        mode: 'single',
+       props: {
+        mode: 'multiple',
         supportTypes: [FieldType.Attachment],
       },
       validator: {
@@ -121,6 +121,14 @@ fieldDecoratorKit.setDecorator({
             key: '2:3',
             title: '2:3',
           },
+          {
+            key: '16:9',
+            title: '16:9',
+          },
+          {
+            key: '9:16',
+            title: '9:16',
+          },
         ]
       },
       validator: {
@@ -145,6 +153,14 @@ fieldDecoratorKit.setDecorator({
           {
             key: '15',
             title: '15s',
+          },
+          {
+            key: '20',
+            title: '20s',
+          },
+          {
+            key: '30',
+            title: '30s',
           },
           
         ]
@@ -197,6 +213,10 @@ fieldDecoratorKit.setDecorator({
           requestBody.model = "grok-video-3-10s";
         } else if (sec === "15") {
           requestBody.model = "grok-video-3-15s";
+        } else if (sec === "20") {
+          requestBody.model = "grok-video-3-20s";
+        } else if (sec === "30") {
+          requestBody.model = "grok-video-3-30s";
         }
       }
 
@@ -309,7 +329,7 @@ fieldDecoratorKit.setDecorator({
 
       return {
         code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
+        extra: { errorMessage: errorMsg }
       };
     }
   },

@@ -264,11 +264,13 @@ fieldDecoratorKit.setDecorator({
 
 
     // 定义常量
-    const API_BASE_URL = 'http://token.yishangcloud.cn/v1/videos';
+    const API_BASE_URL = 'http://token.yishangcloud.cn/v1/videos1';
     const POLLING_INTERVAL = 5000; // 5秒间隔
     const MAX_POLLING_TIME = 900000; // 900秒最大等待时间
 
     try {
+
+      
       // 构建请求参数
       let modelName = `${videoMethod}_${videoResolution}_${seconds}s`;
       if (videoMethod === 'doubao-seedance-2-0') {
@@ -336,25 +338,25 @@ fieldDecoratorKit.setDecorator({
       };
       console.log(requestOptions);
       
-      debugLog({ requestOptions });
 
       // 创建视频任务
       const createTask = await context.fetch(API_BASE_URL, requestOptions, 'auth_id');
       const taskResp = await createTask.json();
 
-      debugLog({ taskResp });
-
-      // 检查令牌有效性
-      if (taskResp.error?.message?.includes('无效的令牌')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error3'
-        };
-      }
 
       // 检查是否返回了任务id
       if (!taskResp?.id) {
-        throw new Error(taskResp.error?.message || '创建视频任务失败');
+        console.log(taskResp);
+        if (taskResp?.error) {
+          throw new Error(taskResp.error.message || '创建视频任务失败');
+        }else{
+          let msg = taskResp.message;
+          try { msg = JSON.parse(msg).message; } catch {}
+          msg = msg.replace(/\s*Request id:.*/i, '').trim();
+          throw new Error(msg || '创建视频任务失败');
+        }
+        
+        
       }
 
       // 轮询获取视频状态
@@ -397,6 +399,8 @@ fieldDecoratorKit.setDecorator({
 
       // 从视频详情中提取视频URL
       const videoUrl = videoDetailResp?.video_url || '';
+      console.log(videoUrl);
+      
 
       return {
         code: FieldExecuteCode.Success, // 0 表示请求成功
@@ -409,9 +413,8 @@ fieldDecoratorKit.setDecorator({
       };
 
     } catch (e) {
-      debugLog({ error: String(e) });
-
       const errorMsg = String(e);
+
       if (errorMsg.includes('无可用渠道')) {
         return {
           code: FieldExecuteCode.Error,
@@ -434,7 +437,7 @@ fieldDecoratorKit.setDecorator({
 
       return {
         code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
+        extra: { errorMessage: errorMsg }
       };
     }
   },

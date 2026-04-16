@@ -330,7 +330,9 @@ fieldDecoratorKit.setDecorator({
       };
 
     } catch (e) {
-      debugLog({ error: String(e) });
+      let errMsg = e?.message || String(e);
+      errMsg = errMsg.trim().replace(/\s*\(request id: [^)]+\)$/, '');
+          
 
       const errorMsg = String(e);
       if (errorMsg.includes('无可用渠道')) {
@@ -355,7 +357,7 @@ fieldDecoratorKit.setDecorator({
 
       return {
         code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
+        extra: { errorMessage: errMsg }
       };
     }
   },

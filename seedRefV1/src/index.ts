@@ -362,7 +362,7 @@ fieldDecoratorKit.setDecorator({
 
       return {
         code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
+        extra: { errorMessage: errorMsg }
       };
     }
   },

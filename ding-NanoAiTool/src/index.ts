@@ -219,202 +219,129 @@ fieldDecoratorKit.setDecorator({
     type: FieldType.Attachment,
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
-  execute: async (context: any, formItemParams: any) => {
-    const { imageMethod, imagePrompt, refImage, aspectRatio, picType, genQty } = formItemParams;
+execute: async (context: any, formItemParams: any) => {
+  const { imageMethod, imagePrompt, refImage, aspectRatio, genQty, picType } = formItemParams;
+
+  // 日志工具
+  const debugLog = (arg: any) => {
+    console.log(JSON.stringify({
+      timestamp: new Date().toISOString(),
+      ...arg
+    }));
+  };
+
+  // 递归提取 tmp_url
+  const extractAllTmpUrls = (data: any): string[] => {
+    const tmpUrlList: string[] = [];
+    const traverse = (current: any) => {
+      if (!current) return;
+      if (typeof current === 'object') {
+        if (current.tmp_url && typeof current.tmp_url === 'string' && current.tmp_url.trim()) {
+          tmpUrlList.push(current.tmp_url.trim());
+        }
+        Object.values(current).forEach(traverse);
+      }
+    };
+    traverse(data);
+    return [...new Set(tmpUrlList)];
+  };
+let imageResults = [];
+  // 单张图片请求（内部出错直接抛错，让 Promise.any 捕获）
+  const fetchImage = async (): Promise<string> => {
+    const createImageUrl = 'http://token.yishangcloud.cn/v1/images/generations';
+    const options = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: imageMethod,
+        prompt: imagePrompt,
+        image: extractAllTmpUrls(refImage),
+        response_format: 'url',
+        size: aspectRatio,
+        "picType": picType
+      })
+    };
+
+    console.log(options);
+  
+    const taskResp = await context.fetch(createImageUrl, options, 'auth_id');
+
+    // HTTP 状态异常
+    if (!taskResp.ok) {
+      const errData = await taskResp.json().catch(() => ({}));
+      const msg = errData.error?.message || `API请求失败: ${taskResp.status}`;
+      throw new Error(msg);
+    }
+    const result = await taskResp.json();
+    const imageUrl = result.data[0].url;
+
     
-    /** 为方便查看日志，使用此方法替代console.log */
-    function debugLog(arg: any) {
-      console.log(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        ...arg
-      }));
+     imageResults.push({
+            fileName: `image.${picType}`,
+            type: 'image',
+            url: imageUrl
+          });    
+    return result.data[0].url;
+  };
+
+  try {
+    // 入参校验
+    if (!imagePrompt?.trim()) {
+      return {
+        code: FieldExecuteCode.Error,
+        errorMessage: 'error4'
+      };
     }
 
-    function extractAllTmpUrls(data: any): string[] {
-      // 存储所有提取到的 tmp_url
-      const tmpUrlList: string[] = [];
+    const requestCount = Math.max(1, parseInt(genQty) || 1);
+    const requests = Array.from({ length: requestCount }, () => fetchImage());
 
-      // 递归遍历函数
-      function traverse(currentData: any) {
-        // 跳过 null/undefined
-        if (currentData === null || typeof currentData === 'undefined') {
-          return;
-        }
+    // 使用Promise.allSettled处理所有请求，即使有错误也继续运行
+    const results = await Promise.allSettled(requests);
+    
 
-        // 如果是对象（数组/普通对象）
-        if (typeof currentData === 'object') {
-          // 检查当前对象是否有有效 tmp_url
-          if (
-            'tmp_url' in currentData && 
-            typeof currentData.tmp_url === 'string' && 
-            currentData.tmp_url.trim()
-          ) {
-            tmpUrlList.push(currentData.tmp_url.trim());
-          }
-
-          // 遍历所有子元素（跳过原型链属性）
-          for (const key in currentData) {
-            if (currentData.hasOwnProperty(key)) {
-              traverse(currentData[key]);
-            }
-          }
-        }
-      }
-
-      // 开始遍历传入的数据
-      traverse(data);
-      // 返回去重后的数组
-      return [...new Set(tmpUrlList)];
+    const successfulUrls = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => (result as PromiseFulfilledResult<string>).value);
+    
+    // 收集所有失败的错误信息
+    const failedReasons = results
+      .filter(result => result.status === 'rejected')
+      .map(result => (result as PromiseRejectedResult).reason?.message || String((result as PromiseRejectedResult).reason));
+    
+    // 如果没有成功的结果，抛出错误
+    if (successfulUrls.length === 0) {
+      throw new Error(failedReasons[0] || '所有图片生成请求都失败了');
     }
     
-    try {
-      if (!imagePrompt || imagePrompt.trim() === '') {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error4'
+     return {
+          code: FieldExecuteCode.Success, // 0 表示请求成功
+          // data 类型需与下方 resultType 定义一致
+          data: imageResults
         };
+  } catch (err: any) {
+      let errMsg = String(err?.message || err);
+      errMsg = errMsg.replace(/\s*[Rr]equest id: .*$/, '');
+      console.log(errMsg);
+      
+      if (errMsg.includes('令牌额度已用尽') || errMsg.includes('quota') || errMsg.includes('额度')) {
+        return { code: FieldExecuteCode.QuotaExhausted };
       }
-
-      const CREATE_IMAGE_URL = 'http://token.yishangcloud.cn/v1/images/generations';
-      const quantity = parseInt(genQty?.value || genQty || '1', 10);
-      
-      const jsonRequestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: imageMethod,
-          prompt: imagePrompt,
-          image: extractAllTmpUrls(refImage),
-          response_format: 'url',
-          aspectRatio: aspectRatio,
-          picType: picType
-        })
-      };
-      
-      console.log('Request options:', jsonRequestOptions);
-
-      // 创建带超时控制的并发请求
-      const TIMEOUT_MS = 850 * 1000;
-      
-      const promises = Array.from({ length: quantity }, async (_, index) => {
-        const requestIndex = index + 1;
-        
-        // 为每个请求创建超时控制
-        const fetchPromise = context.fetch(CREATE_IMAGE_URL, jsonRequestOptions, 'auth_id');
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('请求超时（850秒）')), TIMEOUT_MS);
-        });
-        
-        try {
-          const taskResp = await Promise.race([fetchPromise, timeoutPromise]);
-          
-          if (!taskResp) {
-            throw new Error(`请求 ${requestIndex} 未能成功发送`);
-          }
-
-          debugLog({ [`=1 图片创建接口结果 ${requestIndex}`]: taskResp });
-          
-          if (!taskResp.ok) {
-            const errorData: any = await taskResp.json().catch(() => ({}));
-            console.error(`API请求 ${requestIndex} 失败:`, taskResp.status, errorData);
-            
-            // 检查HTTP错误响应中的无效令牌错误
-            if (errorData.error && errorData.error.message) {
-              throw new Error(errorData.error.message);
-            }
-            
-            throw new Error(`API请求 ${requestIndex} 失败: ${taskResp.status} ${taskResp.statusText}`);
-          }
-          
-          const result: any = await taskResp.json();
-
-          // 检查API返回的余额耗尽错误
-          if (!result || !result.data || !Array.isArray(result.data) || result.data.length === 0) {
-            throw new Error(`API响应 ${requestIndex} 数据格式不正确或为空`);
-          }
-          
-          return { index: requestIndex, url: result.data[0].url };
-        } catch (error) {
-          throw error;
-        }
-      });
-      
-      // 等待所有请求完成（每个请求都有850秒超时）
-      const allResults = await Promise.allSettled(promises);
-
-      const imageUrls: string[] = [];
-      const errors: string[] = [];
-
-      allResults.forEach((result, index) => {
-        if (result.status === 'fulfilled') {
-          imageUrls.push(result.value.url);
-        } else {
-          const errorMessage = result.reason?.message || String(result.reason);
-          errors.push(`请求 ${index + 1} 失败: ${errorMessage}`);
-          console.error(`请求 ${index + 1} 失败:`, result.reason);
-        }
-      });
-
-      console.log(`图片生成结果: 成功 ${imageUrls.length} 张, 失败 ${errors.length} 张`);
-      if (errors.length > 0) {
-        console.error('失败详情:', errors);
-      }
-
-      // 构建返回数据
-      const data = imageUrls.map((url, index) => ({
-        fileName: `image_${index + 1}.${picType}`,
-        url: url,
-        type: 'image'
-      }));
-
-      if (imageUrls.length === 0) {
+      if (errMsg.includes('gemini image generation failed')||errMsg.includes('当前分组上游负载已饱和')||errMsg.includes('request')) {
         return {
-          code: FieldExecuteCode.Error,
-          errorMessage: `所有图片生成请求均失败: ${errors.join('; ')}`
-        };
-      }
-
-      return {
-        code: FieldExecuteCode.Success,
-        data: data
-      };
-      
-    } catch (e) {
-      const errorMessage = String(e);
-      console.log('====error', errorMessage);
-      
-      if (errorMessage.includes('无可用渠道')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error1'
-        };
-      }
-
-      if (errorMessage.includes('timeout')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error3'
-        };
-      }
-
-      // 检查错误消息中是否包含余额耗尽的信息
-      if (errorMessage.includes('令牌额度已用尽') || errorMessage.includes('quota') || errorMessage.includes('额度')) {
-        return {
-          code: FieldExecuteCode.QuotaExhausted
-        };
-      }
-      
-      if (errorMessage.includes('无效的令牌') || errorMessage.includes('令牌')) {
-        return {
-          code: FieldExecuteCode.ConfigError
-        };
-      }
-      
-      return {
         code: FieldExecuteCode.Error,
         errorMessage: 'error3'
       };
-    }
+      }
+      if (errMsg.includes('无效的令牌')) {
+        return { code: FieldExecuteCode.AuthorizationError };
+      }
+
+      return {
+        code: FieldExecuteCode.Error,
+        extra: { errorMessage: errMsg }
+      };
   }
+}
 });
 export default fieldDecoratorKit;

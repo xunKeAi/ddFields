@@ -209,14 +209,6 @@ fieldDecoratorKit.setDecorator({
 
       debugLog({ taskResp });
 
-      // 检查令牌有效性
-      if (taskResp.error?.message?.includes('无效的令牌')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error3'
-        };
-      }
-
       // 检查是否返回了任务id
       if (!taskResp?.id) {
         throw new Error(taskResp.error?.message || '创建视频任务失败');

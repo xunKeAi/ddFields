@@ -339,37 +339,9 @@ fieldDecoratorKit.setDecorator({
          throw new Error(taskResp.error?.message);
         }else{
 
-          console.log("=========");
-
-          let respMessage = taskResp.message;
-          try {
-            const innerObj = JSON.parse(taskResp.message);
-            if (innerObj.message) {
-              try {
-                const nestedObj = JSON.parse(innerObj.message);
-                if (nestedObj.message) {
-                  try {
-                    const finalObj = JSON.parse(nestedObj.message);
-                    respMessage = finalObj.message || nestedObj.message;
-                  } catch {
-                    respMessage = nestedObj.message;
-                  }
-                } else {
-                  respMessage = nestedObj.message || innerObj.message;
-                }
-              } catch {
-                respMessage = innerObj.message;
-              }
-            } else {
-              respMessage = taskResp.message;
-            }
-          } catch (e) {
-            respMessage = taskResp.message;
-          }
-
-          console.log(respMessage);
-
-          throw new Error(respMessage);
+         const match = taskResp.message.match(/\\?"message\\?\\?":\\?\\?"([^"\\]+)see:/);
+         const result = match ? match[1].trim() : taskResp.messag;
+          throw new Error(result);
         }
         
       }

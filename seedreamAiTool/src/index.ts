@@ -267,6 +267,12 @@ let imageResults = [];
   if (errMsg.includes('无效的令牌')) {
      return { code: FieldExecuteCode.AuthorizationError };
   }
+   if (errMsg.includes('当前分组上游负载已饱和，请稍后再试')) {
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'error4'
+        };
+      }
 
   return {
     code: FieldExecuteCode.Error,

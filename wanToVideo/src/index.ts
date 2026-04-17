@@ -287,7 +287,7 @@ fieldDecoratorKit.setDecorator({
       };
 
       // 收集各种附件URL
-      const imageUrls = collectAttachmentUrls(refImage, 9);
+      const imageUrls = collectAttachmentUrls(refImage, 5);
       const videoUrls = collectAttachmentUrls(refVideo, 3);
 
       // 确保总数量不超过5
@@ -333,17 +333,45 @@ fieldDecoratorKit.setDecorator({
 
       debugLog({ taskResp });
 
-      // 检查令牌有效性
-      if (taskResp.error?.message?.includes('无效的令牌')) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'error3'
-        };
-      }
-
       // 检查是否返回了任务id
       if (!taskResp?.id) {
-        throw new Error(taskResp.error?.message || '创建视频任务失败');
+        if (taskResp.error?.message) {
+         throw new Error(taskResp.error?.message);
+        }else{
+
+          console.log("=========");
+
+          let respMessage = taskResp.message;
+          try {
+            const innerObj = JSON.parse(taskResp.message);
+            if (innerObj.message) {
+              try {
+                const nestedObj = JSON.parse(innerObj.message);
+                if (nestedObj.message) {
+                  try {
+                    const finalObj = JSON.parse(nestedObj.message);
+                    respMessage = finalObj.message || nestedObj.message;
+                  } catch {
+                    respMessage = nestedObj.message;
+                  }
+                } else {
+                  respMessage = nestedObj.message || innerObj.message;
+                }
+              } catch {
+                respMessage = innerObj.message;
+              }
+            } else {
+              respMessage = taskResp.message;
+            }
+          } catch (e) {
+            respMessage = taskResp.message;
+          }
+
+          console.log(respMessage);
+
+          throw new Error(respMessage);
+        }
+        
       }
 
       // 轮询获取视频状态
@@ -398,8 +426,6 @@ fieldDecoratorKit.setDecorator({
       };
 
     } catch (e) {
-      debugLog({ error: String(e) });
-
       const errorMsg = String(e);
       if (errorMsg.includes('无可用渠道')) {
         return {
@@ -423,7 +449,7 @@ fieldDecoratorKit.setDecorator({
 
       return {
         code: FieldExecuteCode.Error,
-        errorMessage: 'error4'
+        extra: { errorMessage: errorMsg }
       };
     }
   },

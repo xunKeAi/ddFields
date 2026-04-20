@@ -9,7 +9,7 @@ fieldDecoratorKit.setDecorator({
   // 定义AI 字段的i18n语言资源
   i18nMap: {
     'zh-CN': {
-        // 'videoMethod': '模型选择',
+        'videoMethod': '模型选择',
         'videoPrompt': '视频提示词',
         'refImage': '参考图片',
         'refImageTips': '图像 + 视频 ≤ 5 个，支持 JPG、PNG、 WEBP、BMP、TIFF、GIF，单文件建议小于10MB',
@@ -84,28 +84,28 @@ fieldDecoratorKit.setDecorator({
     },
   // 定义AI 字段的入参
   formItems: [
-    // {
-    //   key: 'videoMethod',
-    //   label: t('videoMethod'),
-    //   component: FormItemComponent.SingleSelect,
-    //   props: {
-    //     defaultValue: 'doubao-seedance-2-0',
-    //     placeholder: '请选择模型',
-    //     options: [
-    //       {
-    //         key: 'doubao-seedance-2-0',
-    //         title: 'Seedance Pro 2.0',
-    //       },
-    //       {
-    //         key: 'doubao-seedance-2-0-fast',
-    //         title: 'Seedance Pro 2.0 Fast',
-    //       }
-    //     ]
-    //   },
-    //   validator: {
-    //     required: true,
-    //   }
-    // },
+    {
+      key: 'videoMethod',
+      label: t('videoMethod'),
+      component: FormItemComponent.SingleSelect,
+      props: {
+        defaultValue: 'wan2.7',
+        placeholder: '请选择模型',
+        options: [
+          {
+            key: 'wan2.7',
+            title: 'wan2.7',
+          },
+          {
+            key: 'wan2.6',
+            title: 'wan2.6',
+          }
+        ]
+      },
+      validator: {
+        required: true,
+      }
+    },
     {
       key: 'videoPrompt',
       label: t('videoPrompt'),
@@ -223,7 +223,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context, formItemParams: any) => {
-    const {  videoPrompt, refImage, refVideo, size, seconds, videoResolution } = formItemParams;
+    const { videoMethod, videoPrompt, refImage, refVideo, size, seconds, videoResolution } = formItemParams;
 
     /** 为方便查看日志，使用此方法替代console.log */
     const debugLog = (arg: any) => {
@@ -244,9 +244,9 @@ fieldDecoratorKit.setDecorator({
       let modelName;
 
       if((refImage && refImage.length > 0) || (refVideo && refVideo.length > 0)) {
-        modelName = `wan2.7-r2v-${videoResolution}-${seconds}s`;
+        modelName = `${videoMethod}-r2v-${videoResolution}-${seconds}s`;
       } else {
-        modelName = `wan2.7-t2v-${videoResolution}_${seconds}s`;
+        modelName = `${videoMethod}-t2v-${videoResolution}_${seconds}s`;
       }
 
       

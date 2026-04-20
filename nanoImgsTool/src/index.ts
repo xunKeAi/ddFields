@@ -393,15 +393,10 @@ fieldDecoratorKit.setDecorator({
     if (errMsg.includes('无效的令牌')) {
       return { code: FieldExecuteCode.AuthorizationError };
     }
-    if (errMsg.includes('gemini image generation failed') || errMsg.includes('当前分组上游负载已饱和') || errMsg.includes('request')) {
+    if (errMsg.includes('gemini image generation failed') || errMsg.includes('当前分组上游负载已饱和') || errMsg.includes('request')||errMsg.includes("google gemini timeout") || errMsg.includes('官方超时')) {
       return { code: FieldExecuteCode.Error, errorMessage: 'error3' };
     }
-    if (errMsg.includes('官方超时')) {
-     return {
-        code: FieldExecuteCode.Error,
-        errorMessage: 'error3'
-      };
-    }
+    
 
     return {
       code: FieldExecuteCode.Error,

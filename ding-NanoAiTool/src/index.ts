@@ -327,12 +327,9 @@ let imageResults = [];
       if (errMsg.includes('令牌额度已用尽') || errMsg.includes('quota') || errMsg.includes('额度')) {
         return { code: FieldExecuteCode.QuotaExhausted };
       }
-      if (errMsg.includes('gemini image generation failed')||errMsg.includes('当前分组上游负载已饱和')||errMsg.includes('request')) {
-        return {
-        code: FieldExecuteCode.Error,
-        errorMessage: 'error3'
-      };
-      }
+      if (errMsg.includes('gemini image generation failed') || errMsg.includes('当前分组上游负载已饱和') || errMsg.includes('request')||errMsg.includes("google gemini timeout") || errMsg.includes('官方超时')) {
+      return { code: FieldExecuteCode.Error, errorMessage: 'error3' };
+    }
       if (errMsg.includes('无效的令牌')) {
         return { code: FieldExecuteCode.AuthorizationError };
       }

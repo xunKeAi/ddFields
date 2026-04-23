@@ -280,6 +280,8 @@ let imageResults = [];
     if (successfulUrls.length === 0) {
       throw new Error(failedReasons[0] || '所有图片生成请求都失败了');
     }
+
+    console.log(imageResults);
     
      return {
           code: FieldExecuteCode.Success, // 0 表示请求成功

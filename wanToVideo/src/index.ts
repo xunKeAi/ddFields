@@ -155,10 +155,10 @@ fieldDecoratorKit.setDecorator({
       label: t('videoResolution'),
       component: FormItemComponent.SingleSelect,
       props: {
-        defaultValue: '720p',
+        defaultValue: '720P',
         options: [
-          { key: '720p',title: '720p'},
-          { key: '480p',title: '480p'},
+          { key: '720P',title: '720P'},
+          { key: '1080P',title: '1080P'},
         ]
       },
       validator: {

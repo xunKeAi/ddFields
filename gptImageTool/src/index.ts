@@ -79,8 +79,9 @@ fieldDecoratorKit.setDecorator({
         defaultValue: 'gpt-image-2',
         placeholder: '请选择模型',
         options: [
-          { key: 'gpt-image-2-all',title: 'gpt-image-2'}, 
-          { key: 'gpt-image-1.5-all',title: 'gpt-image-1.5'}, 
+          { key: 'gpt-image-2',title: 'gpt-image-2'}, 
+          { key: 'gpt-image-2-2K',title: 'gpt-image-2-2K'}, 
+          { key: 'gpt-image-2-4K',title: 'gpt-image-2-4K'}, 
         ]
       },
       validator: {
@@ -211,7 +212,7 @@ execute: async (context: any, formItemParams: any) => {
 let imageResults = [];
   // 单张图片请求（内部出错直接抛错，让 Promise.any 捕获）
   const fetchImage = async (): Promise<string> => {
-    const createImageUrl = 'http://token.yishangcloud.cn/v1/images/generations';
+    const createImageUrl = 'https://token.yishangcloud.cn/v1/images/generations';
     const refImageUrls = extractAllTmpUrls(refImage);
     const body: Record<string, unknown> = {
       model: imageMethod,

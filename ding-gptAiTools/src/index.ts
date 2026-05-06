@@ -10,15 +10,18 @@ fieldDecoratorKit.setDecorator({
   i18nMap: {
     'zh-CN': {
         'modelSelection': '选择模型',
-        'inputCommand': '输入指令',
+        'systemPrompts': '系统提示词',
+        'inputCommand': '用户指令',
         'outputResult': '输出结果',
         'errorTips1': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
         'inputCommandTips': '请输入您的指令',
+        'systemPromptsTips': '请输入您的系统提示词',
         'refAtt': '参考附件',
 
       },
       'en-US': {
         'modelSelection': 'Model selection',
+        'systemPrompts': 'System prompts',
         'inputCommand': 'Input command',
         'outputResult': 'Output result',
         'errorTips1': 'The token configuration is wrong. Please check whether your token is correct. If you still have any questions, you can join the Dingding group for consultation.',
@@ -27,6 +30,7 @@ fieldDecoratorKit.setDecorator({
       },
       'ja-JP': {
         'modelSelection': 'モデル選択',
+        'System prompts': 'システムプロンプト',
         'inputCommand': '入力コマンド',
         'outputResult': '出力結果',
         'errorTips1': 'トークンの設定が間違っています。トークンが正しいかどうかを確認してください。まだ疑問がある場合は、DingDingグループに参加して相談してください。',
@@ -45,7 +49,7 @@ fieldDecoratorKit.setDecorator({
       platform: 'yishangcloud',// 授权平台，目前可以填写当前平台名称
       type: AuthorizationType.HeaderBearerToken, // 授权类型
       required: true,// 设置为选填，用户如果填了授权信息，请求中则会携带授权信息，否则不带授权信息
-      instructionsUrl: "http://token.yishangcloud.cn/",// 帮助链接，告诉使用者如何填写这个apikey
+      instructionsUrl: "https://token.yishangcloud.cn/",// 帮助链接，告诉使用者如何填写这个apikey
       label: '关联账号', // 授权平台，告知用户填写哪个平台的信息
       tooltips: '请配置授权', // 提示，引导用户添加授权
       icon: { // 当前平台的图标
@@ -69,7 +73,6 @@ fieldDecoratorKit.setDecorator({
           { key: 'gpt-5.3',title: 'gpt-5.3',},
           { key: 'gpt-5.4',title: 'gpt-5.4',},
           { key: 'gpt-5.5',title: 'gpt-5.5',},
-
         ]
       },
       validator: {
@@ -106,6 +109,21 @@ fieldDecoratorKit.setDecorator({
         required: false,
       }
     },
+    {
+      key: 'systemPrompts',
+      label: t('systemPrompts'),
+      component: FormItemComponent.Textarea,
+      tooltips: {
+        title:  t('systemPromptsTips')
+      },
+      props: {
+       placeholder: t('systemPromptsTipsTips'),
+        enableFieldReference: true,
+      },
+      validator: {
+        required: false ,
+      }
+    },
   ],
   // 定义AI 字段的返回结果类型
  resultType: {
@@ -113,7 +131,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context: any, formItemParams: any) => {
-    const { modelSelection, inputCommand, refAtt } = formItemParams;
+    const { modelSelection, inputCommand, refAtt, systemPrompts } = formItemParams;
 
     // 调试日志函数
     const debugLog = (arg: any) => {
@@ -125,30 +143,27 @@ fieldDecoratorKit.setDecorator({
 
     try {
 
-      const apiUrl = `http://token.yishangcloud.cn/v1/chat/completions`;
+      const apiUrl = `https://token.yishangcloud.cn/v1/chat/completions`;
       const fileUrl = refAtt?.[0]?.tmp_url || '';
 
       // 构建请求消息
-      const messages = [
+      const messages: any[] = [
         {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: inputCommand
-            },
-            // 添加附件URL（如果存在）
-            ...(fileUrl ? [
-              {
-                type: 'file_url',
-                file_url: {
-                  url: fileUrl
-                }
-              }
-            ] : [])
-          ]
+            "type": "input_text",
+            "text": inputCommand
+        },
+        {
+            "type": "input_file",
+            "file_url": fileUrl
         }
-      ];
+    ];
+
+      if (systemPrompts) {
+          messages.unshift({
+              "type": "system",
+              "text": systemPrompts
+          });
+      }
 
       // 构建请求配置
       const requestOptions = {

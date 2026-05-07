@@ -158,7 +158,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, _initialResult$choice, apiUrl, fileUrl, imageExtensions, fileExtensions, urlWithoutQuery, urlLower, isImage, isFile, requestBody, input, _input, _input2, requestOptions, taskResp, initialResult, _initialResult$error$, aiResult, _t;
+      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, _initialResult$choice, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, _initialResult$error$, aiResult, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -170,29 +170,40 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             };
             _context.p = 1;
             apiUrl = "https://token.yishangcloud.cn/v1/responses";
-            fileUrl = (refAtt === null || refAtt === void 0 || (_refAtt$ = refAtt[0]) === null || _refAtt$ === void 0 ? void 0 : _refAtt$.tmp_url) || ''; // 判断文件类型
-            imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-            fileExtensions = ['.pdf', '.doc', '.docx', '.txt', '.xlsx', '.xls', '.ppt', '.pptx']; // 从URL中提取文件名（移除查询参数和锚点）
-            urlWithoutQuery = fileUrl.split('?')[0].split('#')[0];
-            urlLower = urlWithoutQuery.toLowerCase();
-            isImage = imageExtensions.some(function (ext) {
-              return urlLower.endsWith(ext);
-            });
-            isFile = fileExtensions.some(function (ext) {
-              return urlLower.endsWith(ext);
-            }); // 构建请求体
-            if (!refAtt || refAtt.length === 0) {
-              // refAtt为空时
-              input = [];
-              if (systemPrompts) {
-                input.push({
-                  "role": "system",
-                  "content": [{
-                    "type": "input_text",
-                    "text": systemPrompts
-                  }]
-                });
+            fileUrl = (refAtt === null || refAtt === void 0 || (_refAtt$ = refAtt[0]) === null || _refAtt$ === void 0 ? void 0 : _refAtt$.tmp_url) || ''; // 获取文件类型
+            getFileType = function getFileType(url) {
+              var imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+              var fileExtensions = ['.pdf', '.doc', '.docx', '.txt', '.xlsx', '.xls', '.ppt', '.pptx'];
+              var urlWithoutQuery = url.split('?')[0].split('#')[0].toLowerCase();
+              if (imageExtensions.some(function (ext) {
+                return urlWithoutQuery.endsWith(ext);
+              })) {
+                return 'image';
               }
+              if (fileExtensions.some(function (ext) {
+                return urlWithoutQuery.endsWith(ext);
+              })) {
+                return 'file';
+              }
+              return 'none';
+            }; // 构建系统提示消息
+            buildSystemMessage = function buildSystemMessage(prompts) {
+              return {
+                "role": "system",
+                "content": [{
+                  "type": "input_text",
+                  "text": prompts
+                }]
+              };
+            }; // 构建请求体
+            fileType = getFileType(fileUrl);
+            hasAttachment = refAtt && refAtt.length > 0;
+            input = [];
+            if (systemPrompts) {
+              input.push(buildSystemMessage(systemPrompts));
+            }
+            if (!hasAttachment) {
+              // 无附件
               input.push({
                 "role": "user",
                 "content": inputCommand
@@ -201,46 +212,26 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
                 "model": modelSelection,
                 "input": input
               };
-            } else if (isImage) {
-              // refAtt是图片时
-              _input = [];
-              if (systemPrompts) {
-                _input.push({
-                  "role": "system",
-                  "content": [{
-                    "type": "input_text",
-                    "text": systemPrompts
-                  }]
-                });
-              }
-              _input.push({
+            } else if (fileType === 'image') {
+              // 图片附件
+              input.push({
                 "role": "user",
                 "content": [{
                   "type": "input_text",
                   "text": inputCommand
                 }, {
-                  "type": "input_image",
+                  "type": "image_url",
                   "image_url": fileUrl
                 }]
               });
               requestBody = {
                 "model": modelSelection,
                 "stream": false,
-                "input": _input
+                "input": input
               };
             } else {
-              // refAtt是其他附件时（包括文档或未知类型）
-              _input2 = [];
-              if (systemPrompts) {
-                _input2.push({
-                  "role": "system",
-                  "content": [{
-                    "type": "input_text",
-                    "text": systemPrompts
-                  }]
-                });
-              }
-              _input2.push({
+              // 文档或其他附件
+              input.push({
                 "role": "user",
                 "content": [{
                   "type": "input_text",
@@ -253,7 +244,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
               requestBody = {
                 "model": modelSelection,
                 "stream": false,
-                "input": _input2
+                "input": input
               };
             }
 

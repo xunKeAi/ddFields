@@ -146,106 +146,62 @@ fieldDecoratorKit.setDecorator({
       const apiUrl = `https://token.yishangcloud.cn/v1/responses`;
       const fileUrl = refAtt?.[0]?.tmp_url || '';
 
-      // 判断文件类型
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
-      const fileExtensions = ['.pdf', '.doc', '.docx', '.txt', '.xlsx', '.xls', '.ppt', '.pptx'];
-      
-      // 从URL中提取文件名（移除查询参数和锚点）
-      const urlWithoutQuery = fileUrl.split('?')[0].split('#')[0];
-      const urlLower = urlWithoutQuery.toLowerCase();
-      
-      const isImage = imageExtensions.some(ext => urlLower.endsWith(ext));
-      const isFile = fileExtensions.some(ext => urlLower.endsWith(ext));
-      
+      // 获取文件类型
+      const getFileType = (url: string): 'image' | 'file' | 'none' => {
+          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+          const fileExtensions = ['.pdf', '.doc', '.docx', '.txt', '.xlsx', '.xls', '.ppt', '.pptx'];
+          const urlWithoutQuery = url.split('?')[0].split('#')[0].toLowerCase();
+          
+          if (imageExtensions.some(ext => urlWithoutQuery.endsWith(ext))) {
+              return 'image';
+          }
+          if (fileExtensions.some(ext => urlWithoutQuery.endsWith(ext))) {
+              return 'file';
+          }
+          return 'none';
+      };
+
+      // 构建系统提示消息
+      const buildSystemMessage = (prompts: string) => ({
+          "role": "system",
+          "content": [{ "type": "input_text", "text": prompts }]
+      });
+
       // 构建请求体
-      let requestBody: any;
+      const fileType = getFileType(fileUrl);
+      const hasAttachment = refAtt && refAtt.length > 0;
       
-      if (!refAtt || refAtt.length === 0) {
-          // refAtt为空时
-          const input: any[] = [];
-          if (systemPrompts) {
-              input.push({
-                  "role": "system",
-                  "content": [
-                      {
-                          "type": "input_text",
-                          "text": systemPrompts
-                      }
-                  ]
-              });
-          }
-          input.push({
-              "role": "user",
-              "content": inputCommand
-          });
-          requestBody = {
-              "model": modelSelection,
-              "input": input
-          };
-      } else if (isImage) {
-          // refAtt是图片时
-          const input: any[] = [];
-          if (systemPrompts) {
-              input.push({
-                  "role": "system",
-                  "content": [
-                      {
-                          "type": "input_text",
-                          "text": systemPrompts
-                      }
-                  ]
-              });
-          }
+      const input: any[] = [];
+      if (systemPrompts) {
+          input.push(buildSystemMessage(systemPrompts));
+      }
+
+      let requestBody: any;
+
+      if (!hasAttachment) {
+          // 无附件
+          input.push({ "role": "user", "content": inputCommand });
+          requestBody = { "model": modelSelection, "input": input };
+      } else if (fileType === 'image') {
+          // 图片附件
           input.push({
               "role": "user",
               "content": [
-                  {
-                      "type": "input_text",
-                      "text": inputCommand
-                  },
-                  {
-                      "type": "input_image",
-                      "image_url": fileUrl
-                  }
+                  { "type": "input_text", "text": inputCommand },
+                  { "type": "image_url", "image_url": fileUrl }
               ]
           });
-          requestBody = {
-              "model": modelSelection,
-              "stream": false,
-              "input": input
-          };
+          requestBody = { "model": modelSelection, "stream": false, "input": input };
       } else {
-          // refAtt是其他附件时（包括文档或未知类型）
-          const input: any[] = [];
-          if (systemPrompts) {
-              input.push({
-                  "role": "system",
-                  "content": [
-                      {
-                          "type": "input_text",
-                          "text": systemPrompts
-                      }
-                  ]
-              });
-          }
+          // 文档或其他附件
           input.push({
               "role": "user",
               "content": [
-                  {
-                      "type": "input_text",
-                      "text": inputCommand
-                  },
-                  {
-                      "type": "input_file",
-                      "file_url": fileUrl
-                  }
+                  { "type": "input_text", "text": inputCommand },
+                  { "type": "input_file", "file_url": fileUrl }
               ]
           });
-          requestBody = {
-              "model": modelSelection,
-              "stream": false,
-              "input": input
-          };
+          requestBody = { "model": modelSelection, "stream": false, "input": input };
       }
       
       // 构建请求配置

@@ -5,7 +5,7 @@ const { t } = fieldDecoratorKit;
 fieldDecoratorKit.setDomainList(['api.exchangerate-api.com','token.yishangcloud.cn','open.feishu.cn','pay.xunkecloud.cn','api.xunkecloud.cn']);
 
 fieldDecoratorKit.setDecorator({
-   name: 'AI 对话(GPT)',
+   name: 'AI 对话(Gemini)',
   // 定义AI 字段的i18n语言资源
   i18nMap: {
     'zh-CN': {
@@ -45,7 +45,7 @@ fieldDecoratorKit.setDecorator({
       platform: 'yishangcloud',// 授权平台，目前可以填写当前平台名称
       type: AuthorizationType.HeaderBearerToken, // 授权类型
       required: true,// 设置为选填，用户如果填了授权信息，请求中则会携带授权信息，否则不带授权信息
-      instructionsUrl: "http://token.yishangcloud.cn/",// 帮助链接，告诉使用者如何填写这个apikey
+      instructionsUrl: "https://token.yishangcloud.cn/",// 帮助链接，告诉使用者如何填写这个apikey
       label: '关联账号', // 授权平台，告知用户填写哪个平台的信息
       tooltips: '请配置授权', // 提示，引导用户添加授权
       icon: { // 当前平台的图标
@@ -121,7 +121,7 @@ fieldDecoratorKit.setDecorator({
 
     try {
 
-      const apiUrl = `http://token.yishangcloud.cn/v1/chat/completions`;
+      const apiUrl = `https://token.yishangcloud.cn/v1/chat/completions`;
       const fileUrl = refAtt?.[0]?.tmp_url || '';
 
       // 构建请求消息

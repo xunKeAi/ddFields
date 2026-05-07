@@ -20,7 +20,7 @@ var t = _dingtalkDocsCoolApp.fieldDecoratorKit.t;
 // 通过addDomainList添加请求接口的域名
 _dingtalkDocsCoolApp.fieldDecoratorKit.setDomainList(['api.exchangerate-api.com', 'token.yishangcloud.cn', 'open.feishu.cn', 'pay.xunkecloud.cn']);
 _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
-  name: 'AI 对话(Gemini)',
+  name: 'AI 对话(GPT)',
   // 定义AI 字段的i18n语言资源
   i18nMap: {
     'zh-CN': {

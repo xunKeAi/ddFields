@@ -158,7 +158,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, _initialResult$choice, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, _initialResult$error$, aiResult, _t;
+      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, _initialResult$error$, aiResult, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -266,9 +266,6 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             return taskResp.json();
           case 3:
             initialResult = _context.v;
-            console.log(initialResult);
-
-            // 检查是否有错误
             if (!initialResult.error) {
               _context.n = 5;
               break;
@@ -295,22 +292,13 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
               data: "\u9519\u8BEF: ".concat(initialResult.error.message)
             });
           case 5:
-            if ((_initialResult$choice = initialResult.choices) !== null && _initialResult$choice !== void 0 && (_initialResult$choice = _initialResult$choice[0]) !== null && _initialResult$choice !== void 0 && (_initialResult$choice = _initialResult$choice.message) !== null && _initialResult$choice !== void 0 && _initialResult$choice.content) {
-              _context.n = 6;
-              break;
-            }
-            return _context.a(2, {
-              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
-              errorMessage: 'API响应格式错误'
-            });
-          case 6:
-            aiResult = String(initialResult.choices[0].message.content);
+            aiResult = String(initialResult.output[0].content[0].text);
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
               data: aiResult
             });
-          case 7:
-            _context.p = 7;
+          case 6:
+            _context.p = 6;
             _t = _context.v;
             debugLog({
               type: 'exception',
@@ -321,7 +309,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
               errorMessage: "\u6267\u884C\u5931\u8D25: ".concat(String(_t))
             });
         }
-      }, _callee, null, [[1, 7]]);
+      }, _callee, null, [[1, 6]]);
     }));
     function execute(_x, _x2) {
       return _execute.apply(this, arguments);

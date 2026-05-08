@@ -216,7 +216,6 @@ fieldDecoratorKit.setDecorator({
       const taskResp = await context.fetch(apiUrl, requestOptions, 'auth_id');
       const initialResult = await taskResp.json();
 
-      console.log(initialResult);
 
       // 检查是否有错误
       if (initialResult.error) {
@@ -241,15 +240,8 @@ fieldDecoratorKit.setDecorator({
         };
       }
 
-      // 检查响应结构
-      if (!initialResult.choices?.[0]?.message?.content) {
-        return {
-          code: FieldExecuteCode.Error,
-          errorMessage: 'API响应格式错误'
-        };
-      }
-
-      const aiResult = String(initialResult.choices[0].message.content);
+      const aiResult = String(initialResult.output[0].content[0].text);
+      
       return {
         code: FieldExecuteCode.Success,
         data: aiResult

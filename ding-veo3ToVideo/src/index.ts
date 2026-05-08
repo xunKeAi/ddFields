@@ -177,7 +177,7 @@ fieldDecoratorKit.setDecorator({
     return null;
 }
     try {
-     const createVideoUrl = `http://token.yishangcloud.cn/v1/videos`;
+     const createVideoUrl = `https://token.yishangcloud.cn/v1/videos`;
             // 构建请求参数，动态添加quality参数
             const requestBody: any = {
                 model: videoMethod,
@@ -220,7 +220,7 @@ fieldDecoratorKit.setDecorator({
       // 检查第一个接口是否返回了正确的id
       if (taskResp && taskResp.id) {
         // 调用第二个API获取视频详情 - 实现轮询逻辑
-        const videoDetailUrl = `http://token.yishangcloud.cn/v1/videos/${taskResp.id}`;
+        const videoDetailUrl = `https://token.yishangcloud.cn/v1/videos/${taskResp.id}`;
         const detailRequestOptions = {
           method: 'GET',
           headers: { 

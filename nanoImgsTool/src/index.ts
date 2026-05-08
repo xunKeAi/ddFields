@@ -304,7 +304,7 @@ fieldDecoratorKit.setDecorator({
 
   // 单张图片请求
   const fetchImage = async (prompt: string): Promise<string> => {
-    const createImageUrl = 'http://token.yishangcloud.cn/v1/images/generations';
+    const createImageUrl = 'https://token.yishangcloud.cn/v1/images/generations';
     const options = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

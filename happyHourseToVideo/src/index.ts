@@ -151,8 +151,8 @@ fieldDecoratorKit.setDecorator({
       props: {
         defaultValue: '720P',
         options: [
-          { key: '720P',title: '720p'},
-          { key: '1080P',title: '1080p'},
+          { key: '720P',title: '720P'},
+          { key: '1080P',title: '1080P'},
         ]
       },
       validator: {
@@ -230,7 +230,7 @@ fieldDecoratorKit.setDecorator({
 
 
     // 定义常量
-    const API_BASE_URL = 'http://token.yishangcloud.cn/v1/videos';
+    const API_BASE_URL = 'https://token.yishangcloud.cn/v1/videos';
     const POLLING_INTERVAL = 5000; // 5秒间隔
     const MAX_POLLING_TIME = 900000; // 900秒最大等待时间
 
@@ -282,35 +282,11 @@ fieldDecoratorKit.setDecorator({
 
       // 收集各种附件URL
       const imageUrls = collectAttachmentUrls(refImage, 5);
-      // const videoUrls = collectAttachmentUrls(refVideo, 3);
-
-      // 确保总数量不超过5
-      // let totalUrls = imageUrls.length + videoUrls.length;
-      // if (totalUrls > 5) {
-      //   // 如果图片超过5张且有视频，则保留4张图片和1个视频
-      //   if (imageUrls.length >= 5 && videoUrls.length > 0) {
-      //     imageUrls.splice(4); // 保留前4张图片
-      //     videoUrls.splice(1); // 只保留1个视频
-      //   } else if (imageUrls.length >= 5) {
-      //     // 图片超过5张但没有视频，保留前5张图片
-      //     imageUrls.splice(5);
-      //     videoUrls.length = 0;
-      //   } else {
-      //     // 图片数量不足5，保留所有图片，再保留剩余数量的视频
-      //     const remainingSlots = 5 - imageUrls.length;
-      //     videoUrls.splice(remainingSlots);
-      //   }
-      // }
 
       // 添加到请求体
       if (imageUrls.length > 0) {
         requestBody.images = imageUrls;
       }
-      // if (videoUrls.length > 0) {
-      //   requestBody.videos = videoUrls;
-      // }
-    
-      
       // 收集所有参考图片的 tmp_url 到数组中
       const requestOptions = {
         method: 'POST',

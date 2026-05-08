@@ -186,7 +186,7 @@ execute: async (context: any, formItemParams: any) => {
 let imageResults = [];
   // 单张图片请求（内部出错直接抛错，让 Promise.any 捕获）
   const fetchImage = async (): Promise<string> => {
-    const createImageUrl = 'http://token.yishangcloud.cn/v1/images/generations';
+    const createImageUrl = 'https://token.yishangcloud.cn/v1/images/generations';
     const options = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

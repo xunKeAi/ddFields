@@ -220,7 +220,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
                   "type": "input_text",
                   "text": inputCommand
                 }, {
-                  "type": "image_url",
+                  "type": "input_image",
                   "image_url": fileUrl
                 }]
               });
@@ -266,9 +266,6 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             return taskResp.json();
           case 3:
             initialResult = _context.v;
-            console.log(initialResult);
-
-            // 检查是否有错误
             if (!initialResult.error) {
               _context.n = 5;
               break;

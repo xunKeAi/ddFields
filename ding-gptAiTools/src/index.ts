@@ -188,7 +188,7 @@ fieldDecoratorKit.setDecorator({
               "role": "user",
               "content": [
                   { "type": "input_text", "text": inputCommand },
-                  { "type": "image_url", "image_url": fileUrl }
+                  { "type": "input_image", "image_url": fileUrl }
               ]
           });
           requestBody = { "model": modelSelection, "stream": false, "input": input };
@@ -215,8 +215,6 @@ fieldDecoratorKit.setDecorator({
       // 发送API请求
       const taskResp = await context.fetch(apiUrl, requestOptions, 'auth_id');
       const initialResult = await taskResp.json();
-
-      console.log(initialResult);
 
       // 检查是否有错误
       if (initialResult.error) {

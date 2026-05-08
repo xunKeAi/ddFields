@@ -216,6 +216,7 @@ fieldDecoratorKit.setDecorator({
       const taskResp = await context.fetch(apiUrl, requestOptions, 'auth_id');
       const initialResult = await taskResp.json();
 
+      console.log(initialResult);
 
       // 检查是否有错误
       if (initialResult.error) {
@@ -227,21 +228,20 @@ fieldDecoratorKit.setDecorator({
         });
 
         // 检查令牌有效性
-        if (initialResult.error.message?.includes('无效的令牌')) {
-          return {
-            code: FieldExecuteCode.Error,
-            errorMessage: '无效的令牌'
-          };
+        if (initialResult.error.message) {
+           return {
+          code: FieldExecuteCode.Success,
+          data: `错误: ${initialResult.error.message}`
+        };
         }
 
         return {
           code: FieldExecuteCode.Success,
-          data: `错误: ${initialResult.error.message}`
+          data: `错误: ${initialResult.error}`
         };
       }
-
+  
       const aiResult = String(initialResult.output[0].content[0].text);
-      
       return {
         code: FieldExecuteCode.Success,
         data: aiResult

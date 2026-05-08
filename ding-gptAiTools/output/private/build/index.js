@@ -158,7 +158,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, _initialResult$error$, aiResult, _t;
+      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, aiResult, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -266,6 +266,9 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             return taskResp.json();
           case 3:
             initialResult = _context.v;
+            console.log(initialResult);
+
+            // 检查是否有错误
             if (!initialResult.error) {
               _context.n = 5;
               break;
@@ -278,18 +281,18 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             });
 
             // 检查令牌有效性
-            if (!((_initialResult$error$ = initialResult.error.message) !== null && _initialResult$error$ !== void 0 && _initialResult$error$.includes('无效的令牌'))) {
+            if (!initialResult.error.message) {
               _context.n = 4;
               break;
             }
             return _context.a(2, {
-              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
-              errorMessage: '无效的令牌'
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
+              data: "\u9519\u8BEF: ".concat(initialResult.error.message)
             });
           case 4:
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
-              data: "\u9519\u8BEF: ".concat(initialResult.error.message)
+              data: "\u9519\u8BEF: ".concat(initialResult.error)
             });
           case 5:
             aiResult = String(initialResult.output[0].content[0].text);

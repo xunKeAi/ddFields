@@ -11,6 +11,7 @@ fieldDecoratorKit.setDecorator({
     'zh-CN': {
         'modelSelection': '选择模型',
         'inputCommand': '输入指令',
+        'systemPrompts': '系统提示词',
         'outputResult': '输出结果',
         'errorTips1': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
         'inputCommandTips': '请输入您的指令',
@@ -20,6 +21,7 @@ fieldDecoratorKit.setDecorator({
       'en-US': {
         'modelSelection': 'Model selection',
         'inputCommand': 'Input command',
+        'systemPrompts': 'System prompts',
         'outputResult': 'Output result',
         'errorTips1': 'The token configuration is wrong. Please check whether your token is correct. If you still have any questions, you can join the Dingding group for consultation.',
         'inputCommandTips': 'Please enter your command.',
@@ -28,6 +30,7 @@ fieldDecoratorKit.setDecorator({
       'ja-JP': {
         'modelSelection': 'モデル選択',
         'inputCommand': '入力コマンド',
+        'systemPrompts': 'システムプロンプト',
         'outputResult': '出力結果',
         'errorTips1': 'トークンの設定が間違っています。トークンが正しいかどうかを確認してください。まだ疑問がある場合は、DingDingグループに参加して相談してください。',
         'inputCommandTips': '入力コマンドを入力してください。',
@@ -101,6 +104,20 @@ fieldDecoratorKit.setDecorator({
       validator: {
         required: false,
       }
+    },{
+      key: 'systemPrompts',
+      label: t('systemPrompts'),
+      component: FormItemComponent.Textarea,
+      tooltips: {
+        title:  t('systemPromptsTips')
+      },
+      props: {
+       placeholder: t('systemPromptsTipsTips'),
+        enableFieldReference: true,
+      },
+      validator: {
+        required: false ,
+      }
     },
   ],
   // 定义AI 字段的返回结果类型
@@ -109,7 +126,7 @@ fieldDecoratorKit.setDecorator({
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (context: any, formItemParams: any) => {
-    const { modelSelection, inputCommand, refAtt } = formItemParams;
+    const { modelSelection, inputCommand, refAtt, systemPrompts } = formItemParams;
 
     // 调试日志函数
     const debugLog = (arg: any) => {
@@ -123,30 +140,76 @@ fieldDecoratorKit.setDecorator({
 
       const apiUrl = `https://token.yishangcloud.cn/v1/chat/completions`;
       const fileUrl = refAtt?.[0]?.tmp_url || '';
+      const fileName = refAtt?.[0]?.name || '';
 
-      // 构建请求消息
-      const messages = [
-        {
+      const getFileExtension = (name: string): string | null => {
+        if (!name) return null;
+        return name.split('.').pop()?.toLowerCase() || null;
+      };
+
+      const fileExtension = getFileExtension(fileName);
+
+      const FILE_TYPES = {
+        IMAGE: new Set(['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']),
+        AUDIO: new Set(['mp3', 'wav', 'ogg', 'flac', 'aac']),
+        VIDEO: new Set(['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm']),
+        DOCUMENT: new Set(['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx'])
+      };
+
+      const getFileType = (ext: string | null): string => {
+        if (!ext) return 'none';
+        if (FILE_TYPES.IMAGE.has(ext)) return 'image';
+        if (FILE_TYPES.AUDIO.has(ext)) return 'audio';
+        if (FILE_TYPES.VIDEO.has(ext)) return 'video';
+        if (FILE_TYPES.DOCUMENT.has(ext)) return 'document';
+        return 'unknown';
+      };
+
+      const fileType = getFileType(fileExtension);
+
+      const buildUserMessage = (type: string) => {
+        const baseContent = { type: 'text', text: inputCommand };
+
+        const typeContentMap = {
+          image: {
+            type: 'image_url',
+            image_url: { url: fileUrl, detail: 'high' }
+          },
+          audio: {
+            type: 'input_audio',
+            input_audio: { data: fileUrl, format: fileExtension }
+          },
+          video: {
+            type: 'input_audio',
+            input_audio: { data: fileUrl, format: fileExtension }
+          },
+          document: {
+            type: 'file',
+            file: { filename: fileName, file_data: fileUrl }
+          }
+        };
+
+        const typeContent = typeContentMap[type as keyof typeof typeContentMap];
+
+        return {
           role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: inputCommand
-            },
-            // 添加附件URL（如果存在）
-            ...(fileUrl ? [
-              {
-                type: 'file_url',
-                file_url: {
-                  url: fileUrl
-                }
-              }
-            ] : [])
-          ]
-        }
-      ];
+          content: typeContent ? [baseContent, typeContent] : inputCommand
+        };
+      };
 
-      // 构建请求配置
+      const buildSystemMessage = (prompts: string) => ({
+        role: 'system',
+        content: prompts
+      });
+
+      const messages: any[] = [];
+
+      if (systemPrompts) {
+        messages.push(buildSystemMessage(systemPrompts));
+      }
+
+      messages.push(buildUserMessage(fileType));
+
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,15 +220,12 @@ fieldDecoratorKit.setDecorator({
       };
 
       console.log(requestOptions);
-      
-      // 发送API请求
+
       const taskResp = await context.fetch(apiUrl, requestOptions, 'auth_id');
       const initialResult = await taskResp.json();
 
       console.log(initialResult);
-      
 
-      // 检查是否有错误
       if (initialResult.error) {
         debugLog({
           type: 'error',
@@ -174,7 +234,6 @@ fieldDecoratorKit.setDecorator({
           errorType: initialResult.error.type
         });
 
-        // 检查令牌有效性
         if (initialResult.error.message?.includes('无效的令牌')) {
           return {
             code: FieldExecuteCode.Error,
@@ -188,7 +247,6 @@ fieldDecoratorKit.setDecorator({
         };
       }
 
-      // 检查响应结构
       if (!initialResult.choices?.[0]?.message?.content) {
         return {
           code: FieldExecuteCode.Error,

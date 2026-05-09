@@ -158,7 +158,7 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: function () {
     var _execute = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(context, formItemParams) {
-      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, aiResult, _t;
+      var modelSelection, inputCommand, refAtt, systemPrompts, debugLog, _refAtt$, apiUrl, fileUrl, getFileType, buildSystemMessage, fileType, hasAttachment, input, requestBody, requestOptions, taskResp, initialResult, _initialResult$error, _initialResult$error2, _initialResult$error3, _initialResult$error4, output, messageOutput, content, text, aiResult, _t;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -266,19 +266,20 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
             return taskResp.json();
           case 3:
             initialResult = _context.v;
-            if (!initialResult.error) {
+            console.log(initialResult);
+
+            // 检查是否有错误
+            if (initialResult.output) {
               _context.n = 5;
               break;
             }
             debugLog({
               type: 'error',
-              message: initialResult.error.message,
-              code: initialResult.error.code,
-              errorType: initialResult.error.type
+              message: (_initialResult$error = initialResult.error) === null || _initialResult$error === void 0 ? void 0 : _initialResult$error.message,
+              code: (_initialResult$error2 = initialResult.error) === null || _initialResult$error2 === void 0 ? void 0 : _initialResult$error2.code,
+              errorType: (_initialResult$error3 = initialResult.error) === null || _initialResult$error3 === void 0 ? void 0 : _initialResult$error3.type
             });
-
-            // 检查令牌有效性
-            if (!initialResult.error.message) {
+            if (!((_initialResult$error4 = initialResult.error) !== null && _initialResult$error4 !== void 0 && _initialResult$error4.message)) {
               _context.n = 4;
               break;
             }
@@ -289,27 +290,72 @@ _dingtalkDocsCoolApp.fieldDecoratorKit.setDecorator({
           case 4:
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
-              data: "\u9519\u8BEF: ".concat(initialResult.error)
+              data: "\u9519\u8BEF: ".concat(initialResult.message)
             });
           case 5:
-            aiResult = String(initialResult.output[0].content[0].text);
+            // 安全检查响应结构 - 查找 type 为 'message' 的输出
+            output = initialResult.output;
+            if (!(!output || !Array.isArray(output) || output.length === 0)) {
+              _context.n = 6;
+              break;
+            }
+            return _context.a(2, {
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
+              errorMessage: 'API响应格式错误：output为空'
+            });
+          case 6:
+            // 查找 type 为 'message' 的元素
+            messageOutput = output.find(function (item) {
+              return item.type === 'message';
+            });
+            if (messageOutput) {
+              _context.n = 7;
+              break;
+            }
+            return _context.a(2, {
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
+              errorMessage: 'API响应格式错误：未找到message类型的输出'
+            });
+          case 7:
+            content = messageOutput.content;
+            if (!(!content || !Array.isArray(content) || content.length === 0)) {
+              _context.n = 8;
+              break;
+            }
+            return _context.a(2, {
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
+              errorMessage: 'API响应格式错误：content为空'
+            });
+          case 8:
+            text = content[0].text;
+            if (text) {
+              _context.n = 9;
+              break;
+            }
+            return _context.a(2, {
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
+              errorMessage: 'API响应格式错误：text为空'
+            });
+          case 9:
+            console.log(text);
+            aiResult = String(text);
             return _context.a(2, {
               code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
               data: aiResult
             });
-          case 6:
-            _context.p = 6;
+          case 10:
+            _context.p = 10;
             _t = _context.v;
             debugLog({
               type: 'exception',
               message: String(_t)
             });
             return _context.a(2, {
-              code: _dingtalkDocsCoolApp.FieldExecuteCode.Error,
-              errorMessage: "\u6267\u884C\u5931\u8D25: ".concat(String(_t))
+              code: _dingtalkDocsCoolApp.FieldExecuteCode.Success,
+              data: "\u6267\u884C\u5931\u8D25: ".concat(String(_t))
             });
         }
-      }, _callee, null, [[1, 6]]);
+      }, _callee, null, [[1, 10]]);
     }));
     function execute(_x, _x2) {
       return _execute.apply(this, arguments);

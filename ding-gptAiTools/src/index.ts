@@ -216,17 +216,19 @@ fieldDecoratorKit.setDecorator({
       const taskResp = await context.fetch(apiUrl, requestOptions, 'auth_id');
       const initialResult = await taskResp.json();
 
+      console.log(initialResult);
+      
       // 检查是否有错误
-      if (initialResult.error) {
+      if (!initialResult.output) {
+        
         debugLog({
           type: 'error',
-          message: initialResult.error.message,
-          code: initialResult.error.code,
-          errorType: initialResult.error.type
+          message: initialResult.error?.message,
+          code: initialResult.error?.code,
+          errorType: initialResult.error?.type
         });
 
-        // 检查令牌有效性
-        if (initialResult.error.message) {
+        if (initialResult.error?.message) {
            return {
           code: FieldExecuteCode.Success,
           data: `错误: ${initialResult.error.message}`
@@ -235,11 +237,47 @@ fieldDecoratorKit.setDecorator({
 
         return {
           code: FieldExecuteCode.Success,
-          data: `错误: ${initialResult.error}`
+          data: `错误: ${initialResult.message}`
         };
       }
+
+      // 安全检查响应结构 - 查找 type 为 'message' 的输出
+      const output = initialResult.output;
+      if (!output || !Array.isArray(output) || output.length === 0) {
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'API响应格式错误：output为空'
+        };
+      }
+
+      // 查找 type 为 'message' 的元素
+      const messageOutput = output.find(item => item.type === 'message');
+      if (!messageOutput) {
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'API响应格式错误：未找到message类型的输出'
+        };
+      }
+
+      const content = messageOutput.content;
+      if (!content || !Array.isArray(content) || content.length === 0) {
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'API响应格式错误：content为空'
+        };
+      }
+
+      const text = content[0].text;
+      if (!text) {
+        return {
+          code: FieldExecuteCode.Error,
+          errorMessage: 'API响应格式错误：text为空'
+        };
+      }
+
+      console.log(text);
   
-      const aiResult = String(initialResult.output[0].content[0].text);
+      const aiResult = String(text);
       return {
         code: FieldExecuteCode.Success,
         data: aiResult
@@ -250,10 +288,11 @@ fieldDecoratorKit.setDecorator({
         type: 'exception',
         message: String(e)
       });
-      return {
-        code: FieldExecuteCode.Error,
-        errorMessage: `执行失败: ${String(e)}`
-      };
+      return  {
+        code: FieldExecuteCode.Success,
+        data: `执行失败: ${String(e)}`
+      }
+      
     }
   },
 });

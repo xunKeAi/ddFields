@@ -1,7 +1,7 @@
 {
   "name": "kling-to-video",
   "version": "1.0.0",
-  "description": "AI视频生成（可灵）钉钉字段捷径",
+  "description": "AI视频创作（可灵）钉钉字段捷径",
   "main": "index.js",
   "scripts": {
     "start": "dingtalk-docs-cool-app start:field",

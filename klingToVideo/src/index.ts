@@ -26,7 +26,7 @@ const NO_SOUND_MODELS = [
 const ALL_MODELS = [...new Set([...TEXT_TO_VIDEO_MODELS, ...IMAGE_TO_VIDEO_MODELS, ...OMNI_MODELS])];
 
 fieldDecoratorKit.setDecorator({
-  name: 'AI视频生成（可灵）',
+  name: 'AI视频创作（可灵）',
   // 定义捷径的i18n语言资源
   i18nMap: {
     'zh-CN': {

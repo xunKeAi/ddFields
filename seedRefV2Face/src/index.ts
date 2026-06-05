@@ -22,7 +22,7 @@ fieldDecoratorKit.setDecorator({
         'sizeTips': '视频尺寸为视频尺寸设置生成视频的宽高比例，可按横屏、竖屏或方形画幅选择adaptive则根据参考图自动选择最合适的宽高比',
         'videoPromptTips': '请输入视频编辑提示词',
         'refImageTips': '图片生成视频时最多支持提供1至9张参考图，支持 JPG、PNG、 WEBP、BMP、TIFF、GIF，单文件建议小于10MB',
-        'errorTips1': 'AI 字段异常，维护中可联系开发者咨询',
+        'errorTips1': 'seedance模型人像版仅对特定用户开放，可联系管理员申请使用',
         'errorTips2': '视频创建失败，请检查您的提示词或图片信息提示词不允许出现暴力等内容',
         'errorTips3': '令牌配置有误，请检查您的令牌是否正确，如仍有疑问可加入钉钉群咨询',
         'errorTips4': '视频生成超时，请稍后重试',

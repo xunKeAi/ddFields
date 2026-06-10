@@ -5,7 +5,7 @@ const { t } = fieldDecoratorKit;
 fieldDecoratorKit.setDomainList(['api.exchangerate-api.com','token.yishangcloud.cn','pay.xunkecloud.cn','open.feishu.cn']);
 
 fieldDecoratorKit.setDecorator({
-  name: 'AI 视频生成（Seedance 2.0&Fast 人像版）',
+  name: 'AI 视频生成(Seedance 2.0人像版)',
   // 定义AI 字段的i18n语言资源
   i18nMap: {
     'zh-CN': {

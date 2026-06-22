@@ -171,6 +171,7 @@ fieldDecoratorKit.setDecorator({
       props: {
         defaultValue: '720p',
         options: [
+          { key: '1080p',title: '1080p'},
           { key: '720p',title: '720p'},
           { key: '480p',title: '480p'},
         ]
@@ -267,15 +268,46 @@ fieldDecoratorKit.setDecorator({
     const API_BASE_URL = 'https://token.yishangcloud.cn/v1/videos';
     const POLLING_INTERVAL = 5000; // 5秒间隔
     const MAX_POLLING_TIME = 900000; // 900秒最大等待时间
+    const RETRYABLE_NETWORK_ERRORS = ['Network request failed', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'socket hang up', 'fetch failed'];
+
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const isRetryableNetworkError = (error: unknown) => {
+      const errorMsg = String((error as Error)?.message || error);
+      return RETRYABLE_NETWORK_ERRORS.some(keyword => errorMsg.includes(keyword));
+    };
+
+    const fetchWithRetry = async (url: string, options: any, authId: string, maxAttempts = 3) => {
+      let lastError: unknown;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          return await context.fetch(url, options, authId);
+        } catch (error) {
+          lastError = error;
+          const errorMsg = String((error as Error)?.message || error);
+          const shouldRetry = isRetryableNetworkError(error) && attempt < maxAttempts;
+
+          debugLog({ message: '请求失败', url, attempt, shouldRetry, error: errorMsg });
+
+          if (!shouldRetry) {
+            throw error;
+          }
+
+          await sleep(attempt * 1000);
+        }
+      }
+
+      throw lastError;
+    };
+
+    let taskResp: any;
 
     try {
 
       
       // 构建请求参数
-      let modelName = `${videoMethod}_${videoResolution}_${seconds}s`;
-      if (videoMethod === 'doubao-seedance-2-0') {
-        modelName = `${videoMethod}-${videoResolution}_${seconds}s`;
-      }
+      let modelName = `${videoMethod}-${videoResolution}`;
       
       const requestBody: any = {
         model: modelName,
@@ -340,8 +372,8 @@ fieldDecoratorKit.setDecorator({
       
 
       // 创建视频任务
-      const createTask = await context.fetch(API_BASE_URL, requestOptions, 'auth_id');
-      const taskResp = await createTask.json();
+      const createTask = await fetchWithRetry(API_BASE_URL, requestOptions, 'auth_id');
+      taskResp = await createTask.json();
 
 
       // 检查是否返回了任务id
@@ -371,7 +403,7 @@ fieldDecoratorKit.setDecorator({
       let pollingComplete = false;
 
       while (!pollingComplete && (Date.now() - startTime) < MAX_POLLING_TIME) {
-        const getTaskDetail = await context.fetch(videoDetailUrl, detailRequestOptions, 'auth_id');
+        const getTaskDetail = await fetchWithRetry(videoDetailUrl, detailRequestOptions, 'auth_id');
         videoDetailResp = await getTaskDetail.json();
         // 检查状态
         if (videoDetailResp?.status === 'failed') {
@@ -432,6 +464,14 @@ fieldDecoratorKit.setDecorator({
       if (errorMsg.includes('无效的令牌')) {
         return {
           code: FieldExecuteCode.ConfigError
+        };
+      }
+
+      if (isRetryableNetworkError(e)) {
+        const taskId = taskResp?.id || '未知';
+        return {
+          code: FieldExecuteCode.Error,
+          extra: { errorMessage: `任务创建id${taskId}字段捷径异常错误，任务已创建可在网站后台“任务日志”查阅具体生成结果，错误原因：${errorMsg}` }
         };
       }
 

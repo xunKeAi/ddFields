@@ -104,13 +104,13 @@ fieldDecoratorKit.setDecorator({
       label: t('modelSelection'),
       component: FormItemComponent.SingleSelect,
       props: {
-        defaultValue: 'glm-5.1',
+        defaultValue: 'glm-5.2',
         placeholder: '请选择模型',
         options: [
           // 智谱系列
+          { key: 'glm-5.2', title: t('zhipu') + ' GLM-5.2' },
           { key: 'glm-5.1', title: t('zhipu') + ' GLM-5.1' },
           { key: 'glm-5-turbo', title: t('zhipu') + ' GLM-5-turbo' },
-          { key: 'glm-5', title: t('zhipu') + ' GLM-5' },
           { key: 'glm-5v-turbo', title: t('zhipu') + ' GLM-5v-turbo' + t('visualTag') },
           { key: 'glm-4.6v', title: t('zhipu') + ' GLM-4.6v' + t('visualTag') },
           // DeepSeek系列

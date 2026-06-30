@@ -187,6 +187,21 @@ fieldDecoratorKit.setDecorator({
       }));
     };
 
+     const extractAllTmpUrls = (data: any): string[] => {
+    const tmpUrlList: string[] = [];
+    const traverse = (current: any) => {
+      if (!current) return;
+      if (typeof current === 'object') {
+        if (current.tmp_url && typeof current.tmp_url === 'string' && current.tmp_url.trim()) {
+          tmpUrlList.push(current.tmp_url.trim());
+        }
+        Object.values(current).forEach(traverse);
+      }
+    };
+    traverse(data);
+    return [...new Set(tmpUrlList)];
+  };
+
     // 定义常量
     const API_BASE_URL = 'https://token.yishangcloud.cn/v1/videos';
     const POLLING_INTERVAL = 5000; // 5秒间隔
@@ -197,14 +212,10 @@ fieldDecoratorKit.setDecorator({
       const requestBody: any = {
         // model: videoMethod,
         prompt: videoPrompt,
-        // seconds,
+        input_reference:extractAllTmpUrls(refImage),
         size,
       };
 
-      // 如果refImage存在且有第一个元素的tmp_url，则添加input_reference参数
-      if (refImage?.[0]?.tmp_url) {
-        requestBody.input_reference = [refImage[0].tmp_url];
-      }
       if (seconds) {
         const sec = String(seconds);
         if (sec === "6") {

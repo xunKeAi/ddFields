@@ -264,7 +264,6 @@ let imageResults = [];
     }
 
     const requestCount = Math.max(1, parseInt(genQty) || 1);
-console.log("=========4");
 
     const requests = Array.from({ length: requestCount }, () => fetchImage());
 

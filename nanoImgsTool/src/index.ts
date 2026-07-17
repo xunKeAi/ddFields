@@ -257,24 +257,7 @@ fieldDecoratorKit.setDecorator({
   ],
   // 定义AI 字段的返回结果类型
   resultType: {
-    type: FieldType.Object,
-    icon: {
-      light: 'https://iconlight.png'
-    },
-    properties: [
-      {
-        key: 'prop1',
-        type: FieldType.Text,
-        title: '属性1',
-        primary: true
-      },
-      {
-        key: 'prop2',
-        type: FieldType.Attachment,
-        title: '属性2',
-        primary: true
-      }
-    ],
+    type: FieldType.Attachment,
   },
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
  execute: async (context: any, formItemParams: any) => {
@@ -291,19 +274,9 @@ fieldDecoratorKit.setDecorator({
   } = formItemParams;
 
 
-
-   return {
-      code: FieldExecuteCode.Success,
-      data:   {
-        prop1: 'prop1 value',
-        prop2: [{
-      fileName: `image.${picType}`,
-      type: 'image',
-      url: "https://v3.fal.media/files/rabbit/57ieNNi1-L3WrmYi7evuu_output.png"
-    }]
-      }
-    };
+  console.log('formItemParams', formItemParams);
   
+
 
   // 日志工具
   const debugLog = (arg: any) => {
@@ -331,7 +304,7 @@ fieldDecoratorKit.setDecorator({
     };
     traverse(data);
     const uniqueUrls = [...new Set(tmpUrlList)];
-    return [null, ...uniqueUrls];
+    return uniqueUrls;
   };
 
   // 单张图片请求

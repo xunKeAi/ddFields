@@ -163,7 +163,7 @@ fieldDecoratorKit.setDecorator({
         supportTypes: [FieldType.Text, FieldType.Number, FieldType.SingleSelect],
       },
       validator: {
-        required: true,
+        required: false,
       }
     },
   ],

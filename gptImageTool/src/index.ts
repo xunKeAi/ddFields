@@ -232,6 +232,16 @@ let imageResults = [];
     console.log(options);
   
     const taskResp = await context.fetch(createImageUrl, options, 'auth_id');
+    const bodyText = await taskResp.text().catch(() => '');
+    
+    let errorData: any = {};
+    try { errorData = JSON.parse(bodyText); } catch {
+      // 响应体可能包含多段 JSON 拼接，尝试提取第一段
+      const firstJsonEnd = bodyText.indexOf('}{');
+      if (firstJsonEnd !== -1) {
+        try { errorData = JSON.parse(bodyText.slice(0, firstJsonEnd + 1)); } catch {}
+      }
+    }
 
     // HTTP 状态异常
     if (!taskResp.ok) {

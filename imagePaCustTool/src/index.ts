@@ -180,9 +180,12 @@ execute: async (context: any, formItemParams: any) => {
   const finalPicType = picType || 'png';
 
   // gpt-image-2 不需要拼 quality 后缀（1K/2K/4K 等价于无后缀）
+  // nano-banana-pro 用 _ 拼接，如 nano-banana-pro_1K
   const finalModel = imageMethod === 'gpt-image-2'
     ? 'gpt-image-2'
-    : imageMethod + '-' + finalImageQuality;
+    : imageMethod === 'nano-banana-pro'
+      ? imageMethod + '_' + finalImageQuality
+      : imageMethod + '-' + finalImageQuality;
 
 
   
@@ -234,14 +237,23 @@ let imageResults = [];
     console.log(options);
   
     const taskResp = await context.fetch(createImageUrl, options, 'auth_id');
+    const bodyText = await taskResp.text().catch(() => '');
+    
+    let errorData: any = {};
+    try { errorData = JSON.parse(bodyText); } catch {
+      // 响应体可能包含多段 JSON 拼接，尝试提取第一段
+      const firstJsonEnd = bodyText.indexOf('}{');
+      if (firstJsonEnd !== -1) {
+        try { errorData = JSON.parse(bodyText.slice(0, firstJsonEnd + 1)); } catch {}
+      }
+    }
 
     // HTTP 状态异常
     if (!taskResp.ok) {
-      const errData = await taskResp.json().catch(() => ({}));
-      const msg = errData.error?.message || `API请求失败: ${taskResp.status}`;
+      const msg = errorData.error?.message || `API请求失败: ${taskResp.status}`;
       throw new Error(msg);
     }
-    const result = await taskResp.json();
+    const result = JSON.parse(bodyText);
     const imageUrl = result.data[0].url;
 
     
@@ -294,6 +306,7 @@ let imageResults = [];
         };
   } catch (err: any) {
       let errMsg = String(err?.message || err);
+      
       errMsg = errMsg.replace(/\s*[Rr]equest id: .*$/, '');
       console.log(errMsg);
       

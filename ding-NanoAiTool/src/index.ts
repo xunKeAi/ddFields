@@ -265,14 +265,26 @@ let imageResults = [];
     console.log(options);
   
     const taskResp = await context.fetch(createImageUrl, options, 'auth_id');
+    const bodyText = await taskResp.text().catch(() => '');
+    
+    // 统一从 bodyText 解析 JSON，避免重复消费响应体
+    const parseBody = (text: string): any => {
+      try { return JSON.parse(text); } catch {
+        const firstJsonEnd = text.indexOf('}{');
+        if (firstJsonEnd !== -1) {
+          try { return JSON.parse(text.slice(0, firstJsonEnd + 1)); } catch {}
+        }
+        return {};
+      }
+    };
 
     // HTTP 状态异常
     if (!taskResp.ok) {
-      const errData = await taskResp.json().catch(() => ({}));
+      const errData = parseBody(bodyText);
       const msg = errData.error?.message || `API请求失败: ${taskResp.status}`;
       throw new Error(msg);
     }
-    const result = await taskResp.json();
+    const result = parseBody(bodyText);
     const imageUrl = result.data[0].url;
 
     

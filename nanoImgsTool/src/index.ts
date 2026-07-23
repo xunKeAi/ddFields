@@ -328,22 +328,24 @@ fieldDecoratorKit.setDecorator({
     const taskResp = await context.fetch(createImageUrl, options, 'auth_id');
     const bodyText = await taskResp.text().catch(() => '');
     
-    let errorData: any = {};
-    try { errorData = JSON.parse(bodyText); } catch {
-      // 响应体可能包含多段 JSON 拼接，尝试提取第一段
-      const firstJsonEnd = bodyText.indexOf('}{');
-      if (firstJsonEnd !== -1) {
-        try { errorData = JSON.parse(bodyText.slice(0, firstJsonEnd + 1)); } catch {}
+    // 统一从 bodyText 解析 JSON，避免重复消费响应体
+    const parseBody = (text: string): any => {
+      try { return JSON.parse(text); } catch {
+        const firstJsonEnd = text.indexOf('}{');
+        if (firstJsonEnd !== -1) {
+          try { return JSON.parse(text.slice(0, firstJsonEnd + 1)); } catch {}
+        }
+        return {};
       }
-    }
+    };
 
     if (!taskResp.ok) {
-      const errData = await taskResp.json().catch(() => ({}));
+      const errData = parseBody(bodyText);
       const msg = errData.error?.message || `API请求失败: ${taskResp.status}`;
       throw new Error(msg);
     }
 
-    const result = await taskResp.json();
+    const result = parseBody(bodyText);
     return result.data[0].url;
   };
 

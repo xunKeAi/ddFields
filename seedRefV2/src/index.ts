@@ -94,11 +94,15 @@ fieldDecoratorKit.setDecorator({
         options: [
           {
             key: 'doubao-seedance-2-0',
-            title: 'Seedance Pro 2.0',
+            title: 'Seedance 2.0',
           },
           {
             key: 'doubao-seedance-2-0-fast',
-            title: 'Seedance Pro 2.0 Fast',
+            title: 'Seedance 2.0 Fast',
+          },
+          {
+            key: 'doubao-seedance-2-0-mini',
+            title: 'Seedance 2.0 Mini',
           }
         ]
       },

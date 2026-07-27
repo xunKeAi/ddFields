@@ -64,15 +64,14 @@ fieldDecoratorKit.setDecorator({
       label: t('modelSelection'),
       component: FormItemComponent.SingleSelect,
       props: {
-        defaultValue: 'gpt-5',
+        defaultValue: 'gpt-5.5',
         placeholder: '请选择模型',
         options: [
-          { key: 'gpt-5', title: 'gpt-5',},
-          { key: 'gpt-5.1',title: 'gpt-5.1',},
-          { key: 'gpt-5.2',title: 'gpt-5.2',},
-          { key: 'gpt-5.3',title: 'gpt-5.3',},
-          { key: 'gpt-5.4',title: 'gpt-5.4',},
-          { key: 'gpt-5.5',title: 'gpt-5.5',},
+          { key: 'gpt-5.4',title: 'gpt-5.4'},
+          { key: 'gpt-5.5',title: 'gpt-5.5'},
+          { key: 'gpt-5.6-luna',title: 'gpt-5.6-luna'},
+          { key: 'gpt-5.6-sol',title: 'gpt-5.6-sol'},
+          { key: 'gpt-5.6-terra',title: 'gpt-5.6-terra'},
         ]
       },
       validator: {

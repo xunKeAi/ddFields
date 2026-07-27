@@ -66,6 +66,7 @@ fieldDecoratorKit.setDecorator({
         defaultValue: 'gemini-3.1-pro-preview',
         placeholder: '请选择模型',
         options: [
+          { key: 'gemini-3.5-flash',title: 'gemini-3.5-flash',},
           { key: 'gemini-3.1-pro-preview',title: 'gemini-3.1-pro-preview',},
           { key: 'gemini-3-pro-preview', title: 'gemini-3-pro-preview',},
           { key: 'gemini-2.5-pro',title: 'gemini-2.5-pro',},

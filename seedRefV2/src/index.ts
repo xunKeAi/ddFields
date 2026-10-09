@@ -269,7 +269,7 @@ fieldDecoratorKit.setDecorator({
 
 
     // 定义常量
-    const API_BASE_URL = 'https://token.yishangcloud.cn/v1/videos';
+    const API_BASE_URL = 'https://token.yishangcloud.cn/v1/videos1';
     const POLLING_INTERVAL = 5000; // 5秒间隔
     const MAX_POLLING_TIME = 900000; // 900秒最大等待时间
     const RETRYABLE_NETWORK_ERRORS = ['Network request failed', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'socket hang up', 'fetch failed'];
